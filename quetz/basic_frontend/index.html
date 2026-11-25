@@ -49,6 +49,7 @@
   </head>
   <body>
     <h1>Quetz</h1>
+    <a href="/auth/oidc/login" id="oidc_login" hidden>Sign in</a>
     <a href="/auth/github/login" style="margin-right: 100px" id="github_login"
       >login with github</a
     >
@@ -86,6 +87,14 @@
     <script>
       const status = document.getElementById("status");
 
+      for (const provider of ["oidc", "github", "gitlab", "google", "azuread"]) {
+        const link = document.getElementById(`${provider}_login`);
+        link.hidden = true;
+        fetch(`/auth/${provider}/enabled`)
+          .then(response => response.ok ? response.json() : false)
+          .then(enabled => { link.hidden = !enabled; })
+          .catch(() => {});
+      }
       getProfile();
 
       var modal = document.querySelector(".modal");

@@ -1,6 +1,8 @@
 import hashlib
 import time
+from urllib.parse import parse_qs, urlsplit
 
+import httpx
 import pytest
 from authlib.jose import JsonWebKey, jwt
 from authlib.oidc.core.util import create_half_hash
@@ -263,8 +265,8 @@ def google_response(login):
             "body": {
                 "keys": [
                     {
-                        "kid": "1",
                         **JsonWebKey.import_key(cert, {"kty": "RSA"}).as_dict(),
+                        "kid": "1",
                     }
                 ]
             }
@@ -344,11 +346,12 @@ def oauth_server(request, config, app, provider_spec):
 
     module = auth_module(
         config,
-        client_kwargs={"app": server_app},
+        client_kwargs={"transport": httpx.ASGITransport(app=server_app)},
         provider=provider,
         app=app,
     )
 
+    module.test_responses = response
     yield module
 
     module.oauth._registry.pop(provider)
@@ -368,9 +371,27 @@ def routed_client(app, oauth_server):
         app.router.routes.remove(route)
 
 
+def login_callback(client, provider):
+    login = client.get(f"/auth/{provider.provider}/login", follow_redirects=False)
+    assert login.status_code in (302, 307)
+    query = parse_qs(urlsplit(login.headers["location"]).query)
+    if provider.provider == "test_google":
+        body = provider.test_responses["/token"]["body"]
+        claims = jwt.decode(body["id_token"], GOOGLE_CERT)
+        claims["aud"] = provider.client_id
+        claims["nonce"] = query["nonce"][0]
+        body["id_token"] = jwt.encode(
+            {"alg": "RS256", "kid": "1"}, claims, GOOGLE_PRIVATE_KEY
+        ).decode()
+    return client.get(
+        f"/auth/{provider.provider}/authorize",
+        params={"code": "test-code", "state": query["state"][0]},
+    )
+
+
 @pytest.mark.parametrize("config_extra", ["[users]\ncreate_default_channel = true"])
 def test_config_create_default_channel(routed_client, db, oauth_server, config):
-    response = routed_client.get(f"/auth/{oauth_server.provider}/authorize")
+    response = login_callback(routed_client, oauth_server)
 
     assert response.status_code == 200
 
@@ -396,7 +417,7 @@ def test_config_create_default_channel(routed_client, db, oauth_server, config):
 def test_config_create_user_with_role(
     routed_client, db, oauth_server, config, default_role, expected_role, login
 ):
-    response = routed_client.get(f"/auth/{oauth_server.provider}/authorize")
+    response = login_callback(routed_client, oauth_server)
 
     assert response.status_code == 200
 
@@ -419,7 +440,7 @@ def test_config_create_user_with_role_in_different_provider(
     # if the user logins from a different provider than the one specified
     # in config, default_role should be assumed
 
-    response = routed_client.get(f"/auth/{oauth_server.provider}/authorize")
+    response = login_callback(routed_client, oauth_server)
 
     assert response.status_code == 200
 
@@ -442,7 +463,7 @@ def channel(db):
 
 @pytest.mark.parametrize("config_extra", ["[users]\ncreate_default_channel = true"])
 def test_config_create_default_channel_exists(routed_client, db, oauth_server, channel):
-    response = routed_client.get(f"/auth/{oauth_server.provider}/authorize")
+    response = login_callback(routed_client, oauth_server)
 
     assert response.status_code == 200
 
@@ -484,7 +505,7 @@ def test_config_user_exists(
     db.add(profile)
     db.commit()
 
-    response = routed_client.get(f"/auth/{oauth_server.provider}/authorize")
+    response = login_callback(routed_client, oauth_server)
 
     assert response.status_code == 200
 
@@ -530,7 +551,7 @@ def test_config_user_with_identity_exists(
     # we should not be allowed to associate a social account with a user that
     # already has an identity from a different provider
 
-    response = routed_client.get(f"/auth/{oauth_server.provider}/authorize")
+    response = login_callback(routed_client, oauth_server)
     db.refresh(user)
     assert len(user.identities) == 1
     assert user.identities[0].provider == "some-provider"

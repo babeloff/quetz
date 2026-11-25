@@ -2,7 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import json
-from typing import Optional
+from typing import Optional, Type
 
 from authlib.integrations.starlette_client import OAuth
 from fastapi import Request
@@ -61,7 +61,7 @@ class OAuthAuthenticator(BaseAuthenticator):
 
     oauth = OAuth()
     provider = "oauth"
-    handler_cls = OAuthHandlers
+    handler_cls: Type[BaseAuthenticationHandlers] = OAuthHandlers
 
     # client credentials and state
     # they can be also set in configure method

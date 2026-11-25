@@ -1,0 +1,12 @@
+# tag::oidc-config[]
+[oidc]
+issuer = "https://identity.example.org/realms/quetz"
+client_id = "quetz"
+audience = "quetz"
+roles_claim = ["resource_access", "{client_id}", "roles"]
+owner_role = "owner"
+maintainer_role = "maintainer"
+member_role = "member"
+only = true
+allow_insecure_http = false
+# end::oidc-config[]

@@ -340,3 +340,11 @@ You can also use a couple of environment variables to configure the behaviour of
 |`S3_REGION` |s3 region |string |
 |`S3_BUCKET_NAME` |s3 bucket name |string |
 |===
+
+== OIDC authentication and permissions
+
+The optional `[oidc]` section selects a trusted identity provider for browser and bearer authentication.
+See xref:oidc.adoc#configuration-reference[OIDC configuration reference] for every supported field,
+its default,
+and the Keycloak setup procedure.
+OIDC role claims override legacy `[users]` role lists and default-role assignments for provider-managed identities.

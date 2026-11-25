@@ -3,6 +3,7 @@ Define common dependencies for fastapi dependency injection system
 """
 
 import logging
+import uuid
 
 import requests
 from fastapi import BackgroundTasks, Depends, HTTPException, Request, status
@@ -80,12 +81,48 @@ def get_remote_session() -> requests.Session:
     return session
 
 
-def get_rules(
+async def get_rules(
     request: Request,
     session: dict = Depends(get_session),
     db: Session = Depends(get_db),
+    config: Config = Depends(get_config),
 ):
-    return authorization.Rules(request.headers.get("x-api-key"), session, db)
+    from quetz.authentication.oidc import get_oidc_authenticator
+
+    oidc = get_oidc_authenticator(config)
+    header = request.headers.get("authorization")
+    api_key = request.headers.get("x-api-key")
+    if header and api_key:
+        raise HTTPException(400, "Use one authentication mechanism per request")
+    browser = not header and session.get("identity_provider") == "oidc"
+    if oidc and (header or browser):
+        try:
+            if header:
+                scheme, _, access_token = header.partition(" ")
+                if scheme.lower() != "bearer":
+                    raise HTTPException(401, "OIDC bearer authentication required")
+                expected_subject = None
+            else:
+                payload = oidc.session_token(session.get("token"))
+                access_token = payload["access_token"]
+                expected_subject = payload["sub"]
+            claims = await oidc.introspect(access_token)
+            if expected_subject is not None and claims["sub"] != expected_subject:
+                raise HTTPException(401, "OIDC session subject mismatch")
+            user = oidc.sync_user(Dao(db), claims)
+            user_id = str(uuid.UUID(bytes=user.id))
+            if browser and session.get("user_id") != user_id:
+                raise HTTPException(401, "OIDC session identity mismatch")
+            return authorization.Rules(
+                None, {"user_id": user_id, "identity_provider": "oidc"}, db
+            )
+        except HTTPException as exc:
+            if browser and exc.status_code == 401:
+                session.clear()
+            raise
+    if header or (oidc and oidc.only and (session.get("user_id") or api_key)):
+        raise HTTPException(401, "OIDC bearer authentication required")
+    return authorization.Rules(api_key, session, db)
 
 
 def get_tasks_worker(

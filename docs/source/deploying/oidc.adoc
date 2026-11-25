@@ -1,0 +1,140 @@
+= Configure OIDC with Keycloak
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+Use a confidential OIDC client to authenticate browser users and API clients and supply the server roles defined by xref:../qeps/qep-001-user-permissions.adoc[QEP 1].
+The provider must expose discovery,
+JWKS,
+and authenticated token introspection endpoints.
+
+== Set up the identity provider
+
+. Create a Keycloak realm and an OpenID Connect client named `quetz`.
+Enable client authentication and the standard authorization code flow.
+Require PKCE with the `S256` method.
+. Register the exact redirect URI `https://packages.example.org/auth/oidc/authorize`.
+Replace the hostname with your Quetz deployment's public hostname.
+Configure the reverse proxy so Quetz sees the public HTTPS scheme and hostname.
+. Create client roles `owner`,
+`maintainer`,
+and `member`.
+Assign roles explicitly to users or groups.
+Leave users without a role when they should only read their own user data and public content.
+. Ensure access tokens and introspection responses include `resource_access.quetz.roles`,
+`preferred_username`,
+`iss`,
+`sub`,
+`aud`,
+and `exp`.
+Configure an audience mapper that includes `quetz` in access tokens intended for this API.
+Do not rely on roles belonging to another client or on the token's authorized-party field as an audience check.
+. Copy the client secret into the Quetz service's `QUETZ_OIDC_CLIENT_SECRET` environment variable.
+Keep it outside the tracked configuration file.
+
+See the https://www.keycloak.org/docs/latest/server_admin/index.html[Keycloak administration guide] for client roles and audience mappers and the https://www.keycloak.org/securing-apps/oidc-layers[Keycloak OIDC endpoint reference] for introspection.
+
+== Configure Quetz
+
+Add this section to the deployment configuration:
+
+[source%collapsible,toml]
+----
+include::../_examples/oidc.toml[tag=oidc-config]
+----
+
+The example supplements the existing database,
+session,
+and package storage configuration.
+Set a strong persistent session secret and enable `session.https_only` in production.
+Restart Quetz and select *Sign in*,
+or open `/auth/oidc/login`.
+The browser callback validates state,
+nonce,
+issuer,
+audience,
+expiry,
+and the ID token's asymmetric signature.
+The access token must also pass introspection and have the same subject as the ID token.
+
+By default only OIDC authenticators are registered.
+Legacy sessions and Quetz API keys are rejected,
+and the development dummy-login endpoint is disabled whenever OIDC is configured.
+Set `only = false` only during an intentional migration that requires legacy authenticators and keys.
+Existing accounts are never linked automatically by matching usernames or email addresses.
+Resolve a username collision explicitly before migrating that account.
+Existing channels and package memberships stay attached to their existing user IDs.
+
+== Call the API
+
+Obtain a short-lived access token from the provider with audience `quetz`.
+Send it in `Authorization: Bearer <access-token>` to the existing API endpoints.
+Use a separate confidential client with service accounts enabled for automation,
+map only the required Quetz client roles,
+and configure the API audience on its tokens.
+Do not use ID tokens as API credentials.
+
+Every authenticated API or browser request checks the access token through authenticated introspection and synchronizes the database server role.
+Provider outages fail closed with HTTP 503;
+invalid or inactive tokens return HTTP 401.
+Quetz does not refresh access tokens automatically;
+a browser user must sign in again after expiry.
+Browser cookies contain an encrypted access token inside the signed session.
+Keep access tokens small enough to fit the browser's cookie size limit.
+Quetz logout clears the local session;
+provider logout and provider session revocation are managed separately in Keycloak.
+
+Keycloak may return the roles carried by an already issued token until that token is refreshed or replaced.
+For urgent role revocation,
+revoke the relevant provider sessions or tokens and verify that introspection returns `active = false`.
+Removing a role in the provider alone does not guarantee immediate invalidation of all previously issued tokens.
+
+== Configuration reference
+
+All scalar options support the corresponding `QUETZ_OIDC_` environment variable.
+Configure the `roles_claim` list in TOML.
+
+[cols="1,1,3",options="header"]
+|===
+|Option |Default |Meaning
+|`issuer` |Required |Exact trusted issuer URL;
+discovery is loaded from its `/.well-known/openid-configuration` path.
+|`client_id` |Required |Confidential client used for login and introspection.
+|`client_secret` |Required |Secret for the confidential client;
+prefer `QUETZ_OIDC_CLIENT_SECRET`.
+|`audience` |Client ID |Required access-token audience.
+|`roles_claim` |`["resource_access", "{client_id}", "roles"]` |Nested path to a list of role names;
+`{client_id}` is replaced with the configured client ID.
+Use `["realm_access", "roles"]` only if realm-wide roles are intentionally authoritative.
+|`owner_role` |`owner` |Provider role mapped to server owner.
+|`maintainer_role` |`maintainer` |Provider role mapped to server maintainer.
+|`member_role` |`member` |Provider role mapped to server member.
+|`only` |`true` |Accept only OIDC authentication when configured.
+|`allow_insecure_http` |`false` |Allow HTTP issuer and discovery endpoints for isolated local testing only.
+|===
+
+Role mappings must be distinct and nonempty.
+Missing or unrecognized roles grant no server role.
+When several mapped roles are present,
+the highest role wins.
+The legacy `[users]` role lists,
+default role,
+and automatic channel creation do not grant privileges to OIDC identities.
+
+== Implementation reference
+
+The authenticator,
+request handlers,
+claim checks,
+and encrypted session handling share this implementation:
+
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/oidc.py[tag=oidc-authentication]
+----

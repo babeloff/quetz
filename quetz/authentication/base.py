@@ -128,7 +128,13 @@ class BaseAuthenticationHandlers:
         default_channel = await self.authenticator.user_channels(request, profile)
 
         user = auth_dao.get_user_by_identity(
-            dao, self.authenticator.provider, profile, config, role, default_channel
+            dao,
+            self.authenticator.provider,
+            profile,
+            config,
+            role,
+            default_channel,
+            sync_role=self.authenticator.sync_roles,
         )
 
         user_id = str(uuid.UUID(bytes=user.id))
@@ -169,6 +175,7 @@ class BaseAuthenticator:
     """
 
     provider = "base"
+    sync_roles = False
     handler_cls: Type[BaseAuthenticationHandlers] = BaseAuthenticationHandlers
 
     is_enabled = False

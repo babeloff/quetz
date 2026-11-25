@@ -122,6 +122,7 @@ def get_user_by_identity(
     config: Config,
     default_role: Optional[str] = None,
     default_channels: Optional[List[str]] = None,
+    sync_role: bool = False,
 ) -> User:
     db = dao.db
 
@@ -140,6 +141,9 @@ def get_user_by_identity(
         print(f"unexpected response format: {profile}")
 
     if user:
+        if sync_role and user.role != default_role:
+            user.role = default_role
+            db.commit()
         if user_profile_changed(user, identity, profile):
             return update_user_from_profile(db, user, identity, profile)
         return user

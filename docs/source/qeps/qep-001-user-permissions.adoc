@@ -1,4 +1,4 @@
-= QEP 1: quetz permission design
+= QEP 1: Quetz permission design
 :idprefix:
 :idseparator: -
 :toc: left
@@ -9,87 +9,108 @@
 
 include::{site-root}/_partials/navigation.adoc[]
 
+== Status
+
+Implemented with provider-managed OIDC server roles in 0.11.1.
+See xref:../deploying/oidc.adoc[Configure OIDC with Keycloak] for deployment steps and configuration reference.
+Legacy authentication remains available when OIDC is not configured.
+
 == Problem
 
-* there is currently no option to set user permissions at server level
-* all users that log with their github account can create channels and upload packages, which might be not desired especially if the server is visible on the public network
+Authentication alone must not authorize a public server's users to create channels,
+mirror external repositories,
+or administer other users.
+Server permissions require explicit grants and a hierarchy that supports ordinary users,
+administrators,
+and super-administrators.
 
-== Use cases
+== Role hierarchy
 
-* allow or forbid users to create channels
-* allow or forbid users to mirror channels
-* superuser role - user that can modify all channels or modify user permissions
+A user's server role is one of `owner`,
+`maintainer`,
+`member`,
+or database null.
+New OIDC identities without a mapped role have a null role.
+The hierarchy is `owner > maintainer > member`.
 
-== Proposal
+[cols="1,3",options="header"]
+|===
+|Role |Server permissions
+|Null |Read the user's own data;
+read public content.
+Explicit channel and package memberships still apply.
+|`member` |All above;
+create ordinary channels.
+|`maintainer` |All above;
+read all users' data;
+create mirror and proxy channels;
+access every channel including private channels.
+In the legacy local-role mode,
+assign or remove member roles for users with no higher role.
+|`owner` |All above;
+administer all server roles.
+|===
 
-Add role to user model: each user should have one of the roles: `owner`, `maintainer`, `member`.
-By default new users should have no role assigned (role = null). server `maintainer` or `owner` can add a role of `member` for a user, that would allow them to create new channels (except mirror channels).
+Channel and package roles remain separate grants.
+A null server role does not revoke explicit channel or package membership.
 
-Role permissions:
+== OIDC authority
 
-* empty
-** can read their user data
-* `member`
-** can create normal channels
-* `maintainer` (admin)
-** all above and
-** can assign `member` role to users
-** can read all users' data
-** can create mirror and proxy channels
-** has access to all channels (including all private channels)
-* `owner` (super-admin)
-** all above and
-** can assign `maintainer` role to users
+Browser login uses the authorization code flow with PKCE,
+state,
+nonce,
+and signature-validated ID tokens.
+Browser sessions and bearer API requests validate access tokens through the trusted issuer's authenticated introspection endpoint.
+Only active,
+unexpired tokens with the configured issuer,
+API audience,
+and a nonempty subject are accepted.
 
-The role can be modified by the PUT method to the endpoint `+/api/users/{username}/role+` with the following data:
+OIDC identity is the pair of issuer and subject,
+independent of email and display name.
+Provisioning never links an existing account by username or email.
+The role source is an explicitly configured claim path,
+which defaults to Keycloak client roles in `resource_access.<client_id>.roles`.
+Only mapped roles grant privileges;
+the highest matching role wins.
+Every authenticated request synchronizes the server role,
+including removal of all mapped roles.
+Legacy configuration role lists and default-role settings do not override OIDC roles.
 
-[source,json]
-----
-{
-  "role": "ROLE"
-}
-----
+An identity provider may return roles from the issued token until refresh or reauthentication.
+Administrators must revoke provider sessions or tokens for immediate invalidation when supported by the provider.
+Quetz fails closed when introspection is unavailable.
 
-The role can be retrieved by the GET request to the same endpoint.
+== Role API
 
-Roles can be configure with a config file:
+`GET /api/users/{username}/role` returns the stored role subject to the existing user-data permissions.
+The value reflects the last successful synchronization for an OIDC user.
+An OIDC user can authenticate again to synchronize newer token claims.
 
-[source,toml]
-----
-[users]
-# users with owner role
-admins = ["wolfv"]
-# users with maintainer role
-maintainers = ["btel"]
-# users with member role
-members = ["some", "random", "name"]
-# default role assigned to new users
-# leave out if role should be null
-default_role = "member"
-# create a default channel for new users named {username}
-create_default_channel = false
-----
+`PUT /api/users/{username}/role` returns HTTP 409 for provider-managed identities.
+Change those roles in the identity provider.
+In the legacy mode,
+the endpoint accepts a JSON object with a nullable `role` field.
+Owners can assign or remove any server role.
+Maintainers can assign or remove `member` only when the target is currently a member or has no server role.
+Members and users without a role cannot assign or remove server roles.
 
-=== API key
+== API credentials
 
-A user can create a server-wide API key with the same permissions as user, by the POST request to `/api/api-keys` endpoint, with the following data:
+With OIDC-only authentication enabled,
+use provider-issued access tokens in `Authorization: Bearer <access-token>`.
+Use provider service accounts for automation.
+Quetz API key creation is disabled,
+and existing local keys are rejected in this mode.
 
-[source,json]
-----
-{
-  "description": "key description, does not have to be unique"
-  "roles": []
-}
-----
+Without OIDC,
+`POST /api/api-keys` retains the legacy behavior:
+an empty `roles` list creates a key with the user's server permissions;
+explicit channel or package roles restrict the key to those scopes.
+An intentional migration may set `oidc.only = false` to keep legacy keys and authenticators available.
 
-Note that the roles list should remain empty.
-Adding channel or package roles to `roles` will *downgrade* the permissions of the key.
+== Storage
 
-== Implementation
-
-Add a new `role` column to the User model in the database that can have one of 4 values `owner`, `maintainer`, `member` or `null` (actual null object, not the string).
-
-== Discussion
-
-* the names of server roles, even though not optimal, were chosen such that they are the same as channel and package roles
-* this proposal does not allow user to have multiple roles, because the roles create hierarchical relationship i.e., `owner` ++>++ `maintainer` ++>++ `member`
+The existing nullable `User.role` column stores the effective server role.
+The existing identity table stores the OIDC issuer and subject under provider `oidc`.
+No database schema migration is required.

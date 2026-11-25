@@ -8,7 +8,7 @@ requires-pixi = ">=0.84.2"
 
 [package]
 name = "quetz-server"
-version = "0.11.0"
+version = "0.11.1"
 description = "The mamba-org server for conda packages"
 license = "BSD-3-Clause"
 
@@ -16,6 +16,7 @@ license = "BSD-3-Clause"
 backend = { name = "pixi-build-python", version = "0.8.*" }
 
 [package.build.config]
+noarch = false
 extra-input-globs = [
     "quetz/basic_frontend/**/*", "quetz/templates/**/*", "quetz/config.toml",
     "quetz/migrations/*.mako", "quetz/tests/data/**/*",
@@ -23,7 +24,7 @@ extra-input-globs = [
 ]
 
 [package.host-dependencies]
-python = ">=3.7"
+python = "3.11.*"
 setuptools = ">=41,<81"
 wheel = "*"
 uv = "*"
@@ -34,11 +35,13 @@ python = ">=3.7"
 alembic = "*"
 aiofiles = "*"
 appdirs = "*"
-authlib = "<1.0.0"
-fastapi = "*"
+authlib = ">=1.9.10,<2"
+joserfc = ">=1.8,<2"
+cryptography = ">=42"
+fastapi = "0.103.*"
 fsspec = "*"
 h2 = "*"
-httpx = ">=0.22.0"
+httpx = ">=0.22,<0.28"
 importlib_metadata = "*"
 itsdangerous = "*"
 jinja2 = "*"
@@ -130,6 +133,8 @@ setuptools = ">=41,<81"
 wheel = "*"
 
 [feature.release.tasks]
+build-conda = "pixi publish --path . --target-dir dist/release"
+prepare-release = "python scripts/prepare_release.py"
 build-python = "python -m build --no-isolation --outdir dist/python"
 check-python = { cmd = "twine check dist/python/*", depends-on = ["build-python"] }
 

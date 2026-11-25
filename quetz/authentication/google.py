@@ -34,7 +34,7 @@ class GoogleAuthenticator(OAuthAuthenticator):
     collect_emails = False
 
     async def userinfo(self, request, token):
-        profile = await self.client.parse_id_token(request, token)
+        profile = token["userinfo"]
 
         github_profile = {
             "id": profile["sub"],

@@ -58,6 +58,7 @@ from quetz import (
     rest_models,
 )
 from quetz.authentication import AuthenticatorRegistry, BaseAuthenticator
+from quetz.authentication.oidc import OIDCAuthenticator, get_oidc_authenticator
 from quetz.authentication import github as auth_github
 from quetz.authentication import gitlab as auth_gitlab
 from quetz.authentication import google as auth_google
@@ -196,6 +197,7 @@ pkgstore = config.get_package_store()
 builtin_authenticators: List[Type[BaseAuthenticator]] = [
     authenticator
     for authenticator in [
+        OIDCAuthenticator,
         auth_github.GithubAuthenticator,
         auth_gitlab.GitlabAuthenticator,
         auth_google.GoogleAuthenticator,
@@ -214,8 +216,13 @@ plugin_authenticators: List[Type[BaseAuthenticator]] = [
 auth_registry = AuthenticatorRegistry()
 auth_registry.set_router(app)
 
+oidc_auth = get_oidc_authenticator(config)
 for auth_cls in builtin_authenticators + plugin_authenticators:
-    auth_obj = auth_cls(config)
+    if oidc_auth and oidc_auth.only and auth_cls is not OIDCAuthenticator:
+        continue
+    auth_obj = oidc_auth if auth_cls is OIDCAuthenticator else auth_cls(config)
+    if auth_obj is None:
+        continue
     if auth_obj.is_enabled:
         auth_registry.register(auth_obj)
 
@@ -272,8 +279,13 @@ async def route_logout(request):
 
 @api_router.get("/dummylogin/{username}", tags=["dev"])
 def dummy_login(
-    username: str, dao: Dao = Depends(get_dao), session=Depends(get_session)
+    username: str,
+    dao: Dao = Depends(get_dao),
+    session=Depends(get_session),
+    config: Config = Depends(get_config),
 ):
+    if config.configured_section("oidc"):
+        raise HTTPException(404, "Development login is disabled with OIDC")
     user = dao.get_user_by_username(username)
     if user is None:
         raise HTTPException(
@@ -297,14 +309,21 @@ async def me(
     """Returns your quetz profile"""
 
     # Check if token is still valid
-    await check_token_revocation(session)
+    if auth.session.get("identity_provider") != "oidc":
+        await check_token_revocation(session)
 
     user_id = auth.assert_user()
 
     profile = dao.get_profile(user_id)
     if profile:
-        profile.user.id = str(uuid.UUID(bytes=profile.user.id))
-
+        return {
+            "name": profile.name,
+            "avatar_url": profile.avatar_url,
+            "user": {
+                "id": str(uuid.UUID(bytes=user_id)),
+                "username": profile.user.username,
+            },
+        }
     return profile
 
 
@@ -514,7 +533,9 @@ def set_user_role(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"User {username} not found"
         )
 
-    auth.assert_assign_user_role(role.role)
+    auth.assert_assign_user_role(role.role, user.role)
+    if any(identity.provider == "oidc" for identity in user.identities):
+        raise HTTPException(409, "OIDC roles must be changed at the identity provider")
 
     dao.set_user_role(username, role=role.role)
 
@@ -1357,6 +1378,9 @@ def post_api_key(
     dao: Dao = Depends(get_dao),
     auth: authorization.Rules = Depends(get_rules),
 ):
+    oidc = get_oidc_authenticator(Config())
+    if oidc and oidc.only:
+        raise HTTPException(409, "Use an OIDC access token instead of a Quetz API key")
     auth.assert_create_api_key_roles(api_key.roles)
 
     user_id = auth.assert_user()

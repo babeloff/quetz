@@ -22,6 +22,10 @@ Currently quetz does not automatically merge accounts based on email addresses a
 A warning will be printed when running quetz with multiple activated auth providers.
 ====
 
+For provider-managed server permissions,
+use xref:oidc.adoc[OIDC with Keycloak].
+Configuring OIDC selects OIDC-only authentication by default and disables registration of the legacy authenticators described below.
+
 == Built-in authenticators
 
 These authenticator classes are built-in and can be activated by adding relevant section to the configuration file.

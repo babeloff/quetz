@@ -15,6 +15,7 @@ The process can be tailored to your needs and existing infrastructure.
 
 * xref:configuration.adoc[Configuration]
 * xref:authenticators.adoc[Authenticators]
+* xref:oidc.adoc[OIDC with Keycloak]
 * xref:database.adoc[Database]
 * xref:migrations.adoc[Migrations]
 * xref:frontend.adoc[Frontend]

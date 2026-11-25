@@ -2,6 +2,17 @@
 :idprefix:
 :idseparator: -
 
+[[v0111]]
+== 0.11.1
+
+* Authenticate browser and API clients with OIDC providers such as Keycloak.
+* Apply QEP 1 server roles from explicit provider claims and synchronize role removal on authenticated requests.
+* Protect browser login with PKCE and validated ID tokens;
+validate access tokens through authenticated introspection.
+* Prevent unauthorized local role removal and demotion of administrators.
+* Replace the remaining reStructuredText documentation with native AsciiDoc.
+* Separate GitHub releases containing source and native conda packages from manual GHCR and prefix.dev publication.
+
 [[v0110]]
 == 0.11.0
 

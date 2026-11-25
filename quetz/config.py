@@ -75,6 +75,26 @@ class Config:
             required=False,
         ),
         ConfigSection(
+            "oidc",
+            [
+                ConfigEntry("issuer", str),
+                ConfigEntry("client_id", str),
+                ConfigEntry("client_secret", str),
+                ConfigEntry("audience", str, default=""),
+                ConfigEntry(
+                    "roles_claim",
+                    list,
+                    default=["resource_access", "{client_id}", "roles"],
+                ),
+                ConfigEntry("owner_role", str, default="owner"),
+                ConfigEntry("maintainer_role", str, default="maintainer"),
+                ConfigEntry("member_role", str, default="member"),
+                ConfigEntry("only", bool, default=True),
+                ConfigEntry("allow_insecure_http", bool, default=False),
+            ],
+            required=False,
+        ),
+        ConfigSection(
             "github",
             [
                 ConfigEntry("client_id", str),
