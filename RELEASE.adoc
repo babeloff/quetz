@@ -80,3 +80,39 @@ and push commands.
 If publication fails after one registry succeeds,
 inspect that registry before retrying;
 the two registry operations are independent.
+
+== Verified 0.11.1 release
+
+The https://github.com/babeloff/quetz/releases/tag/v0.11.1[0.11.1 GitHub release]
+was published on 2026-11-25.
+Its immutable tag points to commit `b80b63b64d4f3ef1e99a6fd6cd686f779b1a2c33`.
+Later workflow and tooling changes on `main` do not change that tagged source.
+
+The release assets were downloaded and checked during documentation closeout on 2026-11-25:
+
+* `quetz-0.11.1.tar.gz`
+* `quetz-server-0.11.1-linux64__hb0f4dca_0.conda`
+* `quetz-server-0.11.1-osx64__h0dc7051_0.conda`
+* https://github.com/babeloff/quetz/releases/download/v0.11.1/SHA256SUMS[`SHA256SUMS`]
+
+All three artifact hashes match the released manifest.
+The source archive matches the contents of all 344 tracked files at `v0.11.1`.
+Both conda packages declare `quetz-server` version `0.11.1` with the expected native platform and contain installed OIDC sources rather than editable source links.
+The local Linux package's isolated installation and OIDC application startup were also verified during implementation;
+this closeout checks the downloaded release packages' metadata and contents without executing the macOS artifact.
+
+The https://github.com/babeloff/quetz/actions/runs/45684814261[first release attempt]
+was cancelled while the Apple Silicon job was waiting for a runner.
+The completed base release has no Apple Silicon package or supplemental manifest.
+To supply that optional platform,
+follow <<add-the-deferred-apple-silicon-package>> with `tag=v0.11.1`.
+After it completes,
+verify the new package's version and `osx-arm64` subdirectory and its hash in `SHA256SUMS-osx-arm64`.
+Keep the existing tag,
+source archive,
+and base checksum manifest unchanged.
+
+GHCR publication and mirroring to `mesoforge` have not been verified as part of this closeout.
+They remain separate manual operations under <<publish-an-existing-release>>,
+requiring the registry credentials described there.
+A published GitHub release alone does not establish that either registry contains its artifacts.

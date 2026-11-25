@@ -24,6 +24,8 @@ pixi run -e docs docs
 pixi publish --path . --target-dir dist
 ----
 
+=== Documentation sources and rendering
+
 The documentation task renders the AsciiDoc site to `docs/build/html` and the
 repository AsciiDoc documents to `docs/build/asciidoc`.
 Run `pixi run -e docs docs-site` to build only the documentation site.
@@ -51,6 +53,26 @@ include::pixi-scripts/render_docs.py[tag=render-docs]
 
 The package description uses `README.adoc` as plain text because PyPI does not
 render AsciiDoc.
+
+The maintained documentation sources use `.adoc`.
+The native Asciidoctor build replaces Sphinx;
+no reStructuredText source or Sphinx dependency is required.
+Explicit index links define site navigation,
+and tagged source includes provide the authenticator and plugin hook references.
+Keep existing output page paths stable when reorganizing source pages.
+Validate local links,
+anchors,
+images,
+and source includes after changes.
+To reproduce the hosted output location locally,
+run:
+
+[source,bash]
+----
+pixi run --locked -e docs docs-site --output-dir /tmp/quetz-docs/html
+----
+
+=== Test and package environments
 
 The test task uses SQLite by default.
 Cloud storage and Redis integration tests require their corresponding services and credentials, as in CI.
@@ -105,6 +127,65 @@ The content-trust plugin retains `libmambapy` for its signing-role verification 
 These libraries are confined to that optional plugin.
 Current-repodata generation uses Rattler for package matching and preserves latest builds, dependency backfills, and legacy feature alternatives.
 The solver plugin uses the Pixi executable and retains `/api/mamba/solve` for HTTP compatibility.
+
+The maintained workspace environments use Pixi for package management.
+The migration audit found no `pip`,
+`conda`,
+`mamba`,
+or `micromamba` package-manager packages in the root or isolated bundled-plugin workspace.
+Package-format names,
+historical changelog entries,
+and the solver's HTTP path are compatibility surfaces rather than environment-manager commands.
+Use Podman for all OCI build,
+run,
+Compose,
+and registry operations.
+
+== Migration verification baseline
+
+These results record implementation-time verification on 2026-11-25.
+They describe the linked revisions and are not a new execution of the application suites during documentation closeout.
+
+[cols="1,3",options="header"]
+|===
+|Revision |Verified scope
+|https://github.com/babeloff/quetz/commit/e5cc146[Pixi and Podman migration]
+|Server regression suite: 884 passed and 23 skipped;
+CLI suite: 36 passed;
+bundled plugins: 273 passed with the harvester test skipped.
+The solver's real HTTP endpoint and 35 content-trust tests passed.
+Plugin dependencies resolved on Linux,
+Intel macOS,
+and Apple Silicon.
+Production and development images built with Podman;
+the production readiness check returned HTTP 200 and Compose configuration validated.
+|https://github.com/babeloff/quetz/commit/6f7ca0d[Native AsciiDoc documentation]
+|Sixteen Markdown and sixteen reStructuredText sources were migrated across the documentation changes.
+The conversions preserved 53 Markdown and 54 reStructuredText code examples,
+external targets,
+tables,
+and admonitions.
+The native site retained page paths;
+295 local targets and 17 tagged site includes were checked at the reStructuredText migration baseline.
+Documented application Python ASTs remained unchanged.
+Python source and wheel distributions passed metadata checks;
+the source archive contained the renderer and navigation with no `.rst` files.
+|https://github.com/babeloff/quetz/commit/3a22050[Consistent Pixi tasks]
+|Fourteen focused tests passed for build helpers and release artifact sets.
+A clean native AsciiDoc build validated 337 local links and anchors across 17 site pages.
+Ruff,
+mypy,
+repository hooks,
+Actionlint,
+and Python distribution metadata checks passed.
+The source archive contained all eight Python helpers and omitted the removed launchers.
+|===
+
+The container readiness result above applies to the migration image.
+The later Python service-helper conversion was checked with mocked Podman and PostgreSQL commands;
+it did not repeat a live container startup.
+Sphinx was exercised during the earlier migration stage and was subsequently removed from the documentation toolchain.
+See xref:RELEASE.adoc[Release and publish Quetz] for release artifact verification and deferred platform operations.
 
 == Build task reference
 

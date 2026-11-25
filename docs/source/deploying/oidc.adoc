@@ -138,3 +138,46 @@ and encrypted session handling share this implementation:
 ----
 include::../../../quetz/authentication/oidc.py[tag=oidc-authentication]
 ----
+
+== Validation and deployment acceptance
+
+The implementation at https://github.com/babeloff/quetz/commit/b80b63b[b80b63b]
+was verified on 2026-11-25 with 949 server tests passing and 23 skipped.
+Its 65 OIDC tests use a mocked provider with real asymmetric ID-token signatures.
+They cover state,
+nonce,
+PKCE,
+issuer and audience checks,
+role hierarchy and removal,
+identity collisions,
+API permissions,
+revocation,
+encrypted-session tampering,
+and rejection of legacy authentication bypasses.
+Legacy OAuth tests exercise the complete login state exchange through in-process HTTP transports.
+Ruff,
+formatting,
+and mypy passed.
+A locally built Linux conda package was installed into an isolated Pixi workspace and started with only the OIDC authenticator registered.
+
+These checks do not establish acceptance against a live Keycloak deployment.
+Before enabling a production realm,
+verify the following with that realm and its configured proxy:
+
+. Complete a browser login using the exact public callback URI and API audience.
+. Exercise the null,
+member,
+maintainer,
+and owner roles against ordinary,
+private,
+and mirrored channels.
+. Remove mapped roles,
+obtain a replacement token,
+and confirm that the server role is removed on the next authenticated request.
+For urgent revocation,
+confirm that revoked tokens become inactive at introspection and receive HTTP 401 from Quetz.
+. Confirm that legacy sessions and Quetz keys fail in OIDC-only mode and that introspection outages return HTTP 503.
+
+Provider configuration,
+reverse-proxy behavior,
+and provider revocation latency remain deployment-specific acceptance checks.
