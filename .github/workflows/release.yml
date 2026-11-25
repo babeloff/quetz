@@ -29,9 +29,6 @@ jobs:
           - platform: osx-64
             runner: macos-15-intel
             prefix: osx64_
-          - platform: osx-arm64
-            runner: macos-15
-            prefix: osxarm64_
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v7.0.1
@@ -76,10 +73,10 @@ jobs:
           pattern: conda-*
           merge-multiple: true
           path: dist/release
-      - run: pixi run --locked -e release prepare-release
+      - run: pixi run --locked -e release prepare-release --platform linux-64 --platform osx-64
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" dist/release/*.conda dist/release/*.tar.gz dist/release/SHA256SUMS --verify-tag --title "Quetz $RELEASE_TAG" --notes "OIDC authentication and provider-managed QEP 1 permissions. Includes source and native conda packages for linux-64, osx-64 and osx-arm64. Container publication and prefix.dev mirroring are separate manual operations."
+          gh release create "$RELEASE_TAG" dist/release/*.conda dist/release/*.tar.gz dist/release/SHA256SUMS --verify-tag --title "Quetz $RELEASE_TAG" --notes "OIDC authentication and provider-managed QEP 1 permissions. Includes source and native conda packages for linux-64 and osx-64. Apple Silicon (osx-arm64) is deferred to the separate manual Apple Silicon workflow. Container publication and prefix.dev mirroring are separate manual operations."

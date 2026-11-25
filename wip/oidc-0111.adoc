@@ -64,3 +64,25 @@ The release assembler rejects missing platform artifacts and produces a Git sour
 GitHub release creation is driven by the version tag,
 with native builds on each supported platform.
 The separately dispatched publication workflow requires an existing release and verifies its checksums before registry operations.
+
+== Deferred Apple Silicon builds
+
+Apple Silicon runner scheduling delayed the first release attempt,
+and the queued job was cancelled.
+The default release now requires source,
+Linux,
+and Intel macOS artifacts.
+Build and attach Apple Silicon packages only through a separate manually dispatched workflow for an existing release.
+Give the additional package its own checksum manifest so the original release checksums remain unchanged.
+Publication must verify and mirror the base packages plus the optional Apple Silicon package when present.
+Existing version tags remain unchanged;
+manual release dispatch from the maintained branch uses explicit base-platform arguments compatible with the tagged assembler.
+Test the default two-platform set,
+missing required packages,
+and explicitly requested optional packages.
+
+Four artifact-set regression tests pass after the deferral change.
+Actionlint,
+document rendering,
+Ruff,
+and mypy also pass.

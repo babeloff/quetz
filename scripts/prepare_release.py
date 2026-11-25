@@ -47,7 +47,7 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     version = runpy.run_path(str(root / "quetz/_version.py"))["__version__"]
-    platforms = set(args.platforms or ["linux-64", "osx-64", "osx-arm64"])
+    platforms = set(args.platforms or ["linux-64", "osx-64"])
     packages = sorted(args.directory.glob("*.conda"))
     found = []
     for path in packages:

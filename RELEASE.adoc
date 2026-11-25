@@ -6,10 +6,9 @@
 
 A release is a GitHub release containing the tracked source archive,
 SHA-256 checksums,
-and one native conda package for every supported workspace platform:
-`linux-64`,
-`osx-64`,
-and `osx-arm64`.
+and native conda packages for `linux-64` and `osx-64`.
+Apple Silicon (`osx-arm64`) remains a supported workspace platform,
+but its release package is deferred to a separate manual build.
 Windows is not a supported workspace platform.
 Releasing does not publish a container or mirror packages to a channel.
 
@@ -28,8 +27,7 @@ pixi run --locked -e release check-python
 Commit and push the changes,
 then create and push the matching `vNEW_VERSION` tag.
 The `Release source and conda packages` workflow builds on native Linux,
-Intel macOS,
-and Apple Silicon runners.
+and Intel macOS runners.
 It validates the version tag and package metadata before attaching artifacts to the GitHub release.
 The workflow can also be dispatched for an existing tag when no release has been created yet.
 An existing release is never overwritten automatically.
@@ -40,7 +38,7 @@ This uses `pixi publish --target-dir` to copy the built package into a local dir
 It does not upload to a registry.
 The platform build string prefixes keep artifact names unique across platforms.
 
-The assembly command requires the full platform set by default.
+The assembly command requires Linux and Intel macOS packages by default.
 For local Linux verification,
 use `pixi run --locked -e release prepare-release --platform linux-64` after committing the version update.
 The source archive comes from the current Git commit and includes plugins and documentation.
@@ -53,11 +51,24 @@ and platform coverage and generates `SHA256SUMS`:
 include::scripts/prepare_release.py[tag=prepare-release]
 ----
 
+== Add the deferred Apple Silicon package
+
+Dispatch `Add Apple Silicon package to an existing release` manually from `main`,
+using the existing release tag as its `tag` input.
+It checks that the release exists,
+then builds the tagged source on a native Apple Silicon runner.
+Runner availability does not block creation of the base release.
+
+The workflow attaches the additional conda package and `SHA256SUMS-osx-arm64` to the existing release.
+It preserves the original source archive and `SHA256SUMS` and refuses to overwrite existing assets.
+No container or channel publication occurs.
+The package is also retained as the workflow artifact `conda-osx-arm64`.
+
 == Publish an existing release
 
 Run the separate `Publish release to GHCR and prefix.dev` workflow manually with the release tag.
-It verifies the released checksums,
-mirrors those exact conda packages to https://prefix.dev/mesoforge[mesoforge],
+It verifies the original and any supplemental released checksums,
+mirrors the base packages and the Apple Silicon package when attached to https://prefix.dev/mesoforge[mesoforge],
 and uses Podman to build and push `ghcr.io/babeloff/quetz:vNEW_VERSION`.
 Neither a push to `main` nor a release tag invokes publication.
 

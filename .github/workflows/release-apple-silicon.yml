@@ -1,0 +1,64 @@
+name: Add Apple Silicon package to an existing release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing GitHub release tag to supplement
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-apple-silicon-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require an existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: gh release view "$RELEASE_TAG"
+
+  package:
+    needs: check-release
+    runs-on: macos-15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          pixi-version: v0.84.2
+          environments: release
+          locked: true
+      - name: Validate version tag
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: pixi run --locked -e release python -c 'import os; from quetz._version import __version__; assert os.environ["RELEASE_TAG"] == "v" + __version__'
+      - name: Build Apple Silicon package
+        run: pixi run --locked -e release build-conda --target-platform osx-arm64 --build-string-prefix osxarm64_
+      - name: Validate package and prepare separate checksum
+        run: |
+          pixi run --locked -e release prepare-release --platform osx-arm64
+          grep '  quetz-server-.*\.conda$' dist/release/SHA256SUMS > dist/release/SHA256SUMS-osx-arm64
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: conda-osx-arm64
+          path: |
+            dist/release/*.conda
+            dist/release/SHA256SUMS-osx-arm64
+          if-no-files-found: error
+      - name: Attach package without overwriting release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: gh release upload "$RELEASE_TAG" dist/release/*.conda dist/release/SHA256SUMS-osx-arm64
