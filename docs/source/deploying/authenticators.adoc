@@ -1,0 +1,369 @@
+= Authenticators
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+Quetz delegates the task of authenticating users (checking passwords etc.) to third-party identity providers.
+It can communicate via the OAuth2 and OpenID protocols supported by services such as Github and Google.
+This means that you can configure Quetz to have users log in with their Github accounts.
+Quetz also supports the PAM-based authentication which uses local Unix users for authentication.
+
+[WARNING]
+====
+While it is possible to register and use multiple authenticators at once, it is heavily discouraged and a warning will be printed.
+Currently quetz does not automatically merge accounts based on email addresses and usernames from different auth providers can overlap.
+
+A warning will be printed when running quetz with multiple activated auth providers.
+====
+
+== Built-in authenticators
+
+These authenticator classes are built-in and can be activated by adding relevant section to the configuration file.
+See below for more details (the class names are only for reference, they are already included in the Quetz server).
+
+=== PAM
+
+[[quetz.authentication.pam.PAMAuthenticator]]
+Use PAM to authenticate with local system users.
+
+To enable add the following to your configuration file:
+
+[source,toml]
+----
+[pamauthenticator]
+# name for the provider, used in the login URL
+provider = "pam"
+# use the following to translate the Unix groups that
+# users might belong to user role on Quetz server
+admin_groups = ["root", "quetz"]
+maintainer_groups = []
+user_groups = []
+----
+
+On most Linux systems you can add users with:
+
+[source,bash]
+----
+useradd USERNAME
+# set password interactively with
+passwd USERNAME
+----
+
+[NOTE]
+====
+For this authenticator to work, the user who runs the server must be root or be in `shadow` group.
+====
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/pam.py[tag=quetz-authentication-pam-PAMAuthenticator]
+----
+====
+
+=== Github
+
+[[quetz.authentication.github.GithubAuthenticator]]
+Use Github account to authenticate users with Quetz.
+
+To enable add the following to the configuration file:
+
+[source,toml]
+----
+[github]
+client_id = "fde330aef1fbe39991"
+client_secret = "03728444a12abff17e9444fd231b4379d58f0b"
+----
+
+You can obtain `client_id` and `client_secret` by registering your application with Github at this URL: https://github.com/settings/applications/new.
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/github.py[tag=quetz-authentication-github-GithubAuthenticator]
+----
+====
+
+=== Gitlab
+
+[[quetz.authentication.gitlab.GitlabAuthenticator]]
+Use Gitlab account to authenticate users with Quetz.
+
+To enable add the following to the configuration file:
+
+[source,toml]
+----
+[gitlab]
+client_id = "fde330aef1fbe39991"
+client_secret = "03728444a12abff17e9444fd231b4379d58f0b"
+----
+
+The above will use https://gitlab.com.
+You can specify a self-hosted GitLab instance using the `url` parameter:
+
+[source,toml]
+----
+[gitlab]
+url = "https://gitlab.mydomain.org"
+client_id = "fde330aef1fbe39991"
+client_secret = "03728444a12abff17e9444fd231b4379d58f0b"
+----
+
+You can obtain `client_id` and `client_secret` by registering your application with Gitlab at this URL: https://gitlab.com/-/profile/applications or https://gitlab.mydomain.org/admin/applications if using a self-hosted GitLab instance.
+Select `openid` as scope.
+If you want to collect email addresses, make sure to also select `email`, `profile` and `read_user` as scope in the Gitlab interface.
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/gitlab.py[tag=quetz-authentication-gitlab-GitlabAuthenticator]
+----
+====
+
+=== Google
+
+[[quetz.authentication.google.GoogleAuthenticator]]
+Use Google account to authenticate users with Quetz.
+
+To enable add the following to the configuration file:
+
+[source,toml]
+----
+[google]
+client_id = "1111111111-dha39auqzp92110sdf.apps.googleusercontent.com"
+client_secret = "03728444a12abff17e9444fd231b4379d58f0b"
+----
+
+You can obtain `client_id` and `client_secret` by registering your application with Google platform at this URL: https://console.developers.google.com/apis/credentials.
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/google.py[tag=quetz-authentication-google-GoogleAuthenticator]
+----
+====
+
+=== Jupyterhub
+
+[[quetz.authentication.jupyterhub.JupyterhubAuthenticator]]
+Use OAuth2 protocol to authenticate with jupyterhub server, which acts as identity provider.
+
+To activate add the following section to the `config.toml` (see xref:configuration.adoc#configfile[Config file]):
+
+[source,toml]
+----
+[jupyterhubauthenticator]
+
+# client credentials, they need to be registered with
+# jupyterhub by adding an external service
+client_id = "quetz_client"
+client_secret = "super-secret"
+
+# token endpoint of Jupyterhub, needs to be accessible from Quetz server
+access_token_url = "http://JUPYTERHUB_HOST:PORT/hub/api/oauth2/token"
+
+# authorize endpoint of JupyterHub, needs to be accessible from users' browser
+authorize_url = "http://JUPYTERHUB_HOST:PORT/hub/api/oauth2/authorize"
+
+# API root, needs to be accessible from Quetz server
+api_base_url = "http://JUPYTERHUB_HOST:PORT/hub/api/"
+----
+
+To configure quetz as an oauth client in JupyterHub, you will need to define a link:++https://jupyterhub.readthedocs.io/en/stable/reference/services.html#externally-managed-services++[JupyterHub service].
+You can achieve it by adding the following to the `jupyterhub_config.py` file of your JupyterHub instance:
+
+[source,python]
+----
+c.JupyterHub.services = [
+    {
+        # service name, it will be used to setup routers
+        'name': 'quetz',
+        # quetz URL to setup redirections, only required if you use
+        # JupyterHub url scheme
+        'url': 'http://QUETZ_HOST:PORT',
+        # any secret >8 characters, you will also need to set
+        # the client_secret in the authenticator config with this
+        # string
+        'api_token': 'super-secret',
+        # client_id in the authenticator config
+        'oauth_client_id': 'quetz_client',
+        # URL of the callback endpoint on the quetz server
+        'oauth_redirect_uri': 'http://QUETZ_HOST:PORT/auth/jupyterhub/authorize',
+    }
+]
+----
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/jupyterhub.py[tag=quetz-authentication-jupyterhub-JupyterhubAuthenticator]
+----
+====
+
+== Custom authenticators
+
+You can also implement new authenticators for Quetz server.
+
+=== Authentication base classes
+
+The authenticator should derive from one of the base classes:
+
+[[quetz.authentication.base.BaseAuthenticator]]
+Base class for authenticators.
+
+Subclasses MUST implement:
+
+* `authenticate`
+
+Subclasses SHOULD implement:
+
+* `configure`
+* `validate_token`
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/base.py[tag=quetz-authentication-base-BaseAuthenticator]
+----
+====
+
+[[quetz.authentication.base.SimpleAuthenticator]]
+A demo of a possible implementation.
+It redirects users to a simple HTML form where they can type their username and password.
+
+Note: Consider this an example.
+In your production setting you would probably want to redirect to your custom login page.
+Make sure that this page submits data to `+/auth/{provider}/authorize+` endpoint.
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/base.py[tag=quetz-authentication-base-SimpleAuthenticator]
+----
+====
+
+[[quetz.authentication.oauth2.OAuthAuthenticator]]
+Base class for authenticators using Oauth2 protocol and its variants.
+
+The `authenticate` method is already implemented, but you will need to override some of the following variables in subclasses to make it work:
+
+var str provider::
+  name of the provider (it will be used in the url)
+var handler_cls::
+  class with handlers for all oauth2 relevant endpoints in Quetz server
+type handler_cls::
+  subclass of `OauthHandlers`
+var client_id::
+  required, client id registered with the provider
+var client_secret::
+  required, likewise
+var bool is_enabled::
+  True if authenticator is enabled, can be configured in `configure` method
+var access_token_url::
+  URL of the OAuth2 endpoint to request a token
+var authorize_url::
+  URL of the OAuth2 `authorize` endpoint
+var api_base_url::
+  URL of the API root of the provider server
+var validate_token_url::
+  path of endpoint to validate the token
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/oauth2.py[tag=quetz-authentication-oauth2-OAuthAuthenticator]
+----
+====
+
+=== Implement authentication logic
+
+To implement some custom authentication logic, your class should override at least xref:#quetz.authentication.base.BaseAuthenticator.authenticate[`authenticate`] method (except for xref:#quetz.authentication.oauth2.OAuthAuthenticator[`OAuthAuthenticator`] subclasses):
+
+[[quetz.authentication.base.BaseAuthenticator.authenticate]]
+Authentication user with the data submitted.
+
+This method should return:
+
+* `None` if the authentication failed,
+* string with username for successful authentication
+* or a dictionary with keys `username`, `profile` (user profile data), `auth_state` (extra authentication state to be stored in the browser session).
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../../quetz/authentication/base.py[tag=quetz-authentication-base-BaseAuthenticator-authenticate]
+----
+====
+
+For example, the custom authenticator might be:
+
+[source,python]
+----
+class DictionaryAuthenticator(SimpleAuthenticator):
+    """Simple demo authenticator that authenticates with
+    users from a dictionary of usernames and passwords."""
+
+    passwords: dict = {"happyuser": "happy"}
+    provider = "dict"
+
+    async def authenticate(self, request, data, **kwargs):
+        """``data`` argument is username and password entered by
+        user in the login form."""
+
+        if self.passwords.get(data['username']) == data['password']:
+            return data['username']
+----
+
+=== Registering authenticator
+
+The standard way to register an authenticator with Quetz, is to distribute it as a plugin (see xref:../plugins.adoc#plugins_section[Plugins]).
+To automatize the creation of a plugin, check out our cookiecutter link:++https://github.com/mamba-org/quetz-plugin-cookiecutter++[template].
+
+If not using the cookiecutter, you can register an authenticator with Quetz by defining an entry point.
+You can create entry point with the following snippet in the `setup.py`:
+
+[source,python]
+----
+from setuptools import setup
+
+# you will need to adapt these variables
+# to the names from your package
+PACKAGE_NAME = quetz_dictauthenticator
+AUTHENTICATOR_CLASS = "DictAuthenticator"
+MODULE_NAME = authenticators
+
+setup(
+    name="quetz-dictauthenticator",
+    install_requires="quetz",
+    entry_points={
+        "quetz.authenticator": [
+            f"{AUTHENTICATOR_CLASS.lower()} = {PACKAGE_NAME}:{MODULE_NAME}.{AUTHENTICATOR_CLASS}"
+        ]
+    },
+    packages=[PACKAGE_NAME],
+)
+----

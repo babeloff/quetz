@@ -1,0 +1,22 @@
+= Deploying
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+There are many options for deploying a package repository with Quetz.
+You can deploy Quetz either locally for testing, on a production server or in the cloud.
+The process can be tailored to your needs and existing infrastructure.
+
+* xref:configuration.adoc[Configuration]
+* xref:authenticators.adoc[Authenticators]
+* xref:database.adoc[Database]
+* xref:migrations.adoc[Migrations]
+* xref:frontend.adoc[Frontend]
+* xref:workers.adoc[Task Workers]
+* xref:nginx.adoc[Nginx]

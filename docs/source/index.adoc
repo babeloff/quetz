@@ -1,0 +1,33 @@
+= Quetz: conda package server
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: .
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+The quetz project is an open source server for conda packages.
+It is built upon link:++https://fastapi.tiangolo.com/++[FastAPI] with an API-first approach.
+A quetz server can have many users, channels and packages.
+Quetz allows for setting fine-grained permissions on channel and package-name level.
+
+The development of quetz is taking place on link:++https://github.com/mamba-org/quetz++[github].
+
+You can also contact the community of quetz developers and users on our link:++https://gitter.im/QuantStack/Lobby++[gitter] channel.
+
+Quetz project is supported by link:++https://twitter.com/QuantStack++[QuantStack].
+
+== Contents
+
+* xref:deploying/index.adoc[Deploying]
+* xref:using/index.adoc[Using]
+* xref:plugins.adoc[Plugins]
+* xref:qeps/index.adoc[Quetz enhancement proposals (QEPs)]
+
+== API reference
+
+* xref:deploying/authenticators.adoc[Authentication providers and base classes]
+* xref:plugins.adoc#hooks[Plugin hook API]

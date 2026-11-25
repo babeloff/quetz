@@ -1,0 +1,12 @@
+= Quetz enhancement proposals (QEPs)
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+* xref:qep-001-user-permissions.adoc[QEP 1: quetz permission design]

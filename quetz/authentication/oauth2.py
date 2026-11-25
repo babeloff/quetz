@@ -36,6 +36,7 @@ class OAuthHandlers(BaseAuthenticationHandlers):
         )
 
 
+# tag::quetz-authentication-oauth2-OAuthAuthenticator[]
 class OAuthAuthenticator(BaseAuthenticator):
     """Base class for authenticators using Oauth2 protocol and its variants.
 
@@ -133,3 +134,6 @@ class OAuthAuthenticator(BaseAuthenticator):
             return resp.status_code != 401
         except Exception:
             return False
+
+
+# end::quetz-authentication-oauth2-OAuthAuthenticator[]

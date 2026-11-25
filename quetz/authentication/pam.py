@@ -15,6 +15,7 @@ logger = logging.getLogger("quetz")
 try:
     import pamela
 
+    # tag::quetz-authentication-pam-PAMAuthenticator[]
     class PAMAuthenticator(BaseAuthenticator):
         """Use PAM to authenticate with local system users.
 
@@ -171,6 +172,8 @@ try:
                     return None
 
             return username
+
+    # end::quetz-authentication-pam-PAMAuthenticator[]
 
 except ImportError:
     PAMAuthenticator = None  # type: ignore

@@ -1,4 +1,4 @@
-name: sphinx docs check
+name: AsciiDoc documentation
 
 on:
   push:

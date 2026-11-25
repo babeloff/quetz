@@ -11,4 +11,4 @@ build:
       - $HOME/.pixi/bin/pixi install --locked -e docs
     build:
       html:
-        - $HOME/.pixi/bin/pixi run --locked -e docs sphinx-build -W -b html docs/source $READTHEDOCS_OUTPUT/html
+        - $HOME/.pixi/bin/pixi run --locked -e docs docs-site --output-dir $READTHEDOCS_OUTPUT/html

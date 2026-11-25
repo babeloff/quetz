@@ -153,6 +153,7 @@ class BaseAuthenticationHandlers:
         return user_dict
 
 
+# tag::quetz-authentication-base-BaseAuthenticator[]
 class BaseAuthenticator:
     """Base class for authenticators.
 
@@ -231,6 +232,7 @@ class BaseAuthenticator:
         else:
             return None
 
+    # tag::quetz-authentication-base-BaseAuthenticator-authenticate[]
     async def authenticate(
         self, request, data=None, dao=None, config=None, **kwargs
     ) -> AuthReturnType:
@@ -247,6 +249,11 @@ class BaseAuthenticator:
         """
 
         raise NotImplementedError("subclasses need to implement authenticate")
+
+    # end::quetz-authentication-base-BaseAuthenticator-authenticate[]
+
+
+# end::quetz-authentication-base-BaseAuthenticator[]
 
 
 class FormHandlers(BaseAuthenticationHandlers):
@@ -282,6 +289,7 @@ class FormHandlers(BaseAuthenticationHandlers):
         return user_dict
 
 
+# tag::quetz-authentication-base-SimpleAuthenticator[]
 class SimpleAuthenticator(BaseAuthenticator):
     """A demo of a possible implementation. It redirects users to a
     simple HTML form where they can type their username and password.
@@ -307,3 +315,6 @@ class SimpleAuthenticator(BaseAuthenticator):
             return data["username"]
         else:
             return None
+
+
+# end::quetz-authentication-base-SimpleAuthenticator[]

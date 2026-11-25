@@ -1,3 +1,4 @@
+# tag::development-config[]
 [github]
 # Register the app here: https://github.com/settings/applications/new
 # Use a callback URL like `http://localhost:8000/auth/github/authorize`
@@ -22,3 +23,4 @@ admins = ["dummy:alice"]
 [profiling]
 enable_sampling = false
 
+# end::development-config[]

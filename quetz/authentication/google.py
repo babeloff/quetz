@@ -6,6 +6,7 @@ from quetz.config import Config
 from .oauth2 import OAuthAuthenticator
 
 
+# tag::quetz-authentication-google-GoogleAuthenticator[]
 class GoogleAuthenticator(OAuthAuthenticator):
     """Use Google account to authenticate users with Quetz.
 
@@ -67,3 +68,6 @@ class GoogleAuthenticator(OAuthAuthenticator):
 
         # call the configure of base class to set default_channel and default role
         super().configure(config)
+
+
+# end::quetz-authentication-google-GoogleAuthenticator[]

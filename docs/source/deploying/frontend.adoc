@@ -1,0 +1,26 @@
+= Frontend
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+Quetz comes with a initial frontend implementation.
+It can be found in quetz_frontend.
+To build it, one needs to install:
+
+[source,bash]
+----
+pixi add 'nodejs>=14'
+cd quetz_frontend
+npm install
+npm run build
+# for development
+npm run watch
+----
+
+This will build the javascript files and place them in `/quetz_frontend/dist/` from where they are automatically picked up by the quetz server.

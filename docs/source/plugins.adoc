@@ -1,0 +1,204 @@
+= Plugins
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: .
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+[[plugins_section]]
+Plugins can be used to extend quetz functionalities.
+For example, they can:
+
+* add extra endpoints
+* extract meta data from packages
+* and other
+
+== Built-in plugins
+
+Quetz repository provides a few "standard" plugins in the link:++https://github.com/mamba-org/quetz/tree/master/plugins++[plugins] sub-directory.
+However if you want to use them, you will still need to install them.
+After installing the Quetz server and its dependencies, go to the `plugins` subdirectory and install selected plugins.
+For example,
+
+[source,bash]
+----
+cd plugins
+pixi run -e dev quetz plugin install plugins/quetz_runexports
+----
+
+=== `quetz_runexports`
+
+`quetz_runexports` plugin extract the `run_exports` link:++https://conda-forge.org/docs/maintainer/pinning_deps.html#specifying-run-exports++[metadata] from conda packages and exposes them at the endpoint `+/api/channels/{channel_name}/packages/{package_name}/versions/{version_id}/run_exports+`
+
+=== `quetz_repodata_patching`
+
+Some channels, such as `conda-forge` require that metadata from some packages are patched (modified) in the channel index (stored in `repodata.json` file and similar), so that the channel is internally consistent (i.e. all packages can be installed and dependencies satisfied).
+For example, a package might be too restrictive in its specification of its dependencies, so the specifications need to be relaxed in the channel index.
+This procedure is called repodata patching.
+
+`quetz_repodata_patching` plugin implements the repodata patching.
+If installed, it will look for `+{channel_name}-repodata-patches+` package in the channel and apply the patch instructions in the JSON format from this package to the channel index.
+
+For more information about the repodata patching and patch format checkout the link:++https://docs.conda.io/projects/conda-build/en/latest/concepts/generating-index.html#repodata-patching++[docs] and conda-forge link:++https://github.com/conda-forge/conda-forge-repodata-patches-feedstock/tree/master/recipe++[feedstock].
+
+=== `quetz_conda_suggest`
+
+`quetz_conda_suggest` generates `.map` files specific to a particular channel and a subdir.
+These map files facilitate the functioning of `conda-suggest`.
+More information can be seen link:++https://github.com/conda-incubator/conda-suggest++[here].
+The generated map file can be accessed from the endpoint `+/api/channels/{channel_name}/{subdir}/conda-suggest+`.
+
+=== `quetz_current_repodata`
+
+`quetz_current_repodata` plugin generates `current_repodata.json` file specific to a particular channel and a subdir.
+It is a trimmed version of `repodata.json` which contains the latest versions of each package.
+More information can be accessed on the link:++https://docs.conda.io/projects/conda-build/en/latest/concepts/generating-index.html#trimming-to-current-repodata++[current repodata docs].
+
+== Creating a plugin
+
+Some examples can be found in link:++https://github.com/mamba-org/quetz/tree/master/plugins++[plugins] directory.
+If you want to create a new plugin, please use our link:++https://github.com/mamba-org/quetz-plugin-cookiecutter++[cookiecutter] template.
+
+=== Hooks
+
+Hooks can be implemented in plugins.
+They are automatically called in quetz backend after or before certain operations:
+
+==== Hook specification marker
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=hookspec]
+----
+====
+
+[[quetz.hooks.register_router]]
+==== `register_router`
+
+add extra endpoints to the url tree.
+
+It should return an `fastapi.APIRouter` with new endpoints definitions.
+By default it will be added to the root of the urlscheme
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=quetz-hooks-register_router]
+----
+====
+
+[[quetz.hooks.post_add_package_version]]
+==== `post_add_package_version`
+
+hook for post-processing after adding a package file.
+
+param quetz.db_models.PackageVersion version::
+  package version model that was added in to the database
+param quetz.condainfo.CondaInfo condainfo::
+  metadata extracted from the archive
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=quetz-hooks-post_add_package_version]
+----
+====
+
+[[quetz.hooks.post_package_indexing]]
+==== `post_package_indexing`
+
+hook for post-processing after building indexes.
+
+param quetz.pkgstores.PackageStore pkgstore::
+  package store used to store/retrieve packages
+param str channel_name::
+  metadata extracted from the archive
+param list subdirs::
+  list of subdirs with indexes
+param dict files::
+  a dict that contains list of files for each subdir - used in updating the index
+param dict packages::
+  a dict that contains list of packages for each subdir - used in updating the index
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=quetz-hooks-post_package_indexing]
+----
+====
+
+[[quetz.hooks.post_index_creation]]
+==== `post_index_creation`
+
+hook for post-processing after creating package index.
+
+param dict raw_repodata::
+  the package index
+param str channel_name::
+  the channel name
+param str subdir::
+  the subdirectory to which belongs the package index
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=quetz-hooks-post_index_creation]
+----
+====
+
+[[quetz.hooks.validate_new_package]]
+==== `validate_new_package`
+
+Validate new package name.
+
+It should raise `++`++quetz.errors.ValidationError`++`++ if a package is not valid.
+
+param str package_name::
+  name of the package
+param str channel_name::
+  name of channel with the package
+param BinaryIO file_handler::
+  handler to the package file, it can be None if a package is created but no file was yet uploaded
+param CondaInfo condainfo::
+  CondaInfo instance with package metadata, it can be None if file was not uploaded
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=quetz-hooks-validate_new_package]
+----
+====
+
+[[quetz.hooks.check_additional_permissions]]
+==== `check_additional_permissions`
+
+Check if the user has appropriate permissions
+
+param str user_id::
+  id of the user
+
+.Source
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::../../quetz/hooks.py[tag=quetz-hooks-check_additional_permissions]
+----
+====

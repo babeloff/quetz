@@ -7,9 +7,12 @@ import pluggy
 import quetz
 from quetz.condainfo import CondaInfo
 
+# tag::hookspec[]
 hookspec = pluggy.HookspecMarker("quetz")
+# end::hookspec[]
 
 
+# tag::quetz-hooks-register_router[]
 @hookspec
 def register_router() -> "fastapi.APIRouter":
     """add extra endpoints to the url tree.
@@ -18,6 +21,10 @@ def register_router() -> "fastapi.APIRouter":
     By default it will be added to the root of the urlscheme"""
 
 
+# end::quetz-hooks-register_router[]
+
+
+# tag::quetz-hooks-post_add_package_version[]
 @hookspec
 def post_add_package_version(
     version: "quetz.db_models.PackageVersion", condainfo: "quetz.condainfo.CondaInfo"
@@ -34,6 +41,10 @@ def post_add_package_version(
     pass
 
 
+# end::quetz-hooks-post_add_package_version[]
+
+
+# tag::quetz-hooks-post_package_indexing[]
 @hookspec
 def post_package_indexing(
     tempdir: Path,
@@ -64,6 +75,10 @@ def post_package_indexing(
     pass
 
 
+# end::quetz-hooks-post_package_indexing[]
+
+
+# tag::quetz-hooks-post_index_creation[]
 @hookspec
 def post_index_creation(
     raw_repodata: dict,
@@ -84,6 +99,10 @@ def post_index_creation(
     pass
 
 
+# end::quetz-hooks-post_index_creation[]
+
+
+# tag::quetz-hooks-validate_new_package[]
 @hookspec
 def validate_new_package(
     channel_name: str,
@@ -112,6 +131,10 @@ def validate_new_package(
     """
 
 
+# end::quetz-hooks-validate_new_package[]
+
+
+# tag::quetz-hooks-check_additional_permissions[]
 @hookspec
 def check_additional_permissions(db, user_id, user_role) -> bool:
     """
@@ -121,3 +144,6 @@ def check_additional_permissions(db, user_id, user_role) -> bool:
         id of the user
     """
     return True
+
+
+# end::quetz-hooks-check_additional_permissions[]

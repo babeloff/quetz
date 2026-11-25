@@ -1,6 +1,7 @@
 from .oauth2 import OAuthAuthenticator
 
 
+# tag::quetz-authentication-github-GithubAuthenticator[]
 class GithubAuthenticator(OAuthAuthenticator):
     """Use Github account to authenticate users with Quetz.
 
@@ -53,3 +54,6 @@ class GithubAuthenticator(OAuthAuthenticator):
 
         # call the configure of base class to set default_channel and default role
         super().configure(config)
+
+
+# end::quetz-authentication-github-GithubAuthenticator[]

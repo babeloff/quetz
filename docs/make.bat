@@ -1,35 +1,23 @@
 @ECHO OFF
-
-pushd %~dp0
-
-REM Command file for Sphinx documentation
-
-if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=sphinx-build
-)
-set SOURCEDIR=source
-set BUILDDIR=build
-
-if "%1" == "" goto help
-
-%SPHINXBUILD% >NUL 2>NUL
-if errorlevel 9009 (
-	echo.
-	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
-	echo.installed, then set the SPHINXBUILD environment variable to point
-	echo.to the full path of the 'sphinx-build' executable. Alternatively you
-	echo.may add the Sphinx directory to PATH.
-	echo.
-	echo.If you don't have Sphinx installed, grab it from
-	echo.http://sphinx-doc.org/
-	exit /b 1
-)
-
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-goto end
-
-:help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-
-:end
+setlocal
+pushd "%~dp0\.."
+if "%1"=="" goto help
+if "%1"=="html" goto html
+if "%1"=="clean" goto clean
+echo.Unknown target: %1
 popd
+exit /b 1
+:html
+pixi run --locked -e docs docs-site
+set RESULT=%ERRORLEVEL%
+popd
+exit /b %RESULT%
+:clean
+if exist docs\build rmdir /s /q docs\build
+popd
+exit /b 0
+:help
+echo.make html   Build the AsciiDoc documentation site with Pixi
+echo.make clean  Remove generated documentation
+popd
+endlocal

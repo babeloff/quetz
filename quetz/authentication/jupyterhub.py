@@ -57,6 +57,7 @@ class JupyterConfigEntry:
         return config.configured_section(cls.config_section)
 
 
+# tag::quetz-authentication-jupyterhub-JupyterhubAuthenticator[]
 class JupyterhubAuthenticator(OAuthAuthenticator):
     """Use OAuth2 protocol to authenticate with jupyterhub server, which acts
     as identity provider.
@@ -160,3 +161,6 @@ class JupyterhubAuthenticator(OAuthAuthenticator):
         self.is_enabled = JupyterConfigEntry.register(config)
 
         super().configure(config)
+
+
+# end::quetz-authentication-jupyterhub-JupyterhubAuthenticator[]

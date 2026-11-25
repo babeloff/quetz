@@ -24,9 +24,29 @@ pixi run -e docs docs
 pixi publish --path . --target-dir dist
 ----
 
-The documentation task renders the Sphinx site to `docs/build/html` and the
+The documentation task renders the AsciiDoc site to `docs/build/html` and the
 repository AsciiDoc documents to `docs/build/asciidoc`.
-Run `pixi run -e docs docs-asciidoc` to check only the AsciiDoc documents.
+Run `pixi run -e docs docs-site` to build only the documentation site.
+Run `pixi run -e docs docs-asciidoc` to check the repository and plugin documents.
+The site entry point is `docs/source/index.adoc`.
+Shared navigation lives in `docs/source/_partials/navigation.adoc`.
+Authenticator and hook reference pages include tagged Python source;
+keep those tags when editing the documented definitions.
+
+The site renderer reads the release version from `quetz/_version.py`,
+keeps page paths stable,
+and copies the static assets alongside the generated HTML.
+Read the Docs uses the same renderer with its own output directory.
+
+.Documentation site renderer
+[%collapsible]
+====
+[source%collapsible,python]
+----
+include::scripts/render_docs.py[tag=render-docs]
+----
+====
+
 The package description uses `README.adoc` as plain text because PyPI does not
 render AsciiDoc.
 

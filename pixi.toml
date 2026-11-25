@@ -117,13 +117,11 @@ lint = "prek run --all-files"
 
 [feature.docs.dependencies]
 asciidoctor = ">=2,<3"
-sphinx = "*"
-sphinx-book-theme = ">=0.3"
 
 [feature.docs.tasks]
-docs = { depends-on = ["docs-sphinx", "docs-asciidoc"] }
-docs-sphinx = "sphinx-build -W -b html docs/source docs/build/html"
-docs-asciidoc = "asciidoctor --failure-level WARN -R . -D docs/build/asciidoc README.adoc CONTRIBUTING.adoc RELEASE.adoc CHANGELOG.adoc plugins/README.adoc plugins/*/README.adoc"
+docs = { depends-on = ["docs-site", "docs-asciidoc"] }
+docs-site = "python scripts/render_docs.py"
+docs-asciidoc = "asciidoctor --failure-level WARN -R . -D docs/build/asciidoc README.adoc CONTRIBUTING.adoc RELEASE.adoc CHANGELOG.adoc plugins/README.adoc plugins/*/README.adoc plugins/*/docs/*.adoc"
 
 [feature.release.dependencies]
 python-build = "*"

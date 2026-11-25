@@ -29,7 +29,7 @@ include Containerfile
 include compose.yaml
 include .containerignore
 recursive-include containers *
-recursive-include scripts *.sh
+recursive-include scripts *.sh *.py
 
 recursive-include docs/source *.*
 recursive-include docs/assets *.*
