@@ -160,3 +160,31 @@ def test_configure_logger(capsys):
     assert captured.err.count("second") == 1
     assert "my test" not in captured.err
     assert len(captured.err.splitlines()) == 1
+
+
+def test_environment_secret_preserves_other_section_options(config_dir, monkeypatch):
+    from pathlib import Path
+
+    path = Path(config_dir) / "mixed.toml"
+    path.write_text("""
+[sqlalchemy]
+database_url = "sqlite:///:memory:"
+[session]
+secret = "file-secret"
+https_only = false
+[oidc]
+issuer = "https://identity.example.org/realms/quetz"
+client_id = "quetz"
+client_secret = "file-client-secret"
+audience = "quetz-api"
+""")
+    monkeypatch.setattr(Config, "_instances", {})
+    monkeypatch.setattr(Config, "_config_files", [])
+    monkeypatch.setenv("QUETZ_SESSION_SECRET", "environment-session-secret")
+    monkeypatch.setenv("QUETZ_OIDC_CLIENT_SECRET", "environment-client-secret")
+    config = Config(str(path))
+    assert config.session_secret == "environment-session-secret"
+    assert config.session_https_only is False
+    assert config.oidc_client_secret == "environment-client-secret"
+    assert config.oidc_issuer == "https://identity.example.org/realms/quetz"
+    assert config.oidc_audience == "quetz-api"

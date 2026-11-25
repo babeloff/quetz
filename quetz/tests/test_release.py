@@ -89,3 +89,50 @@ def test_optional_apple_silicon_must_be_explicit(tmp_path):
         "osx-arm64",
     )
     assert result.returncode == 0, result.stderr
+
+
+def helm_chart(directory, version=__version__):
+    path = directory / f"quetz-{__version__}.tgz"
+    with tarfile.open(path, "w:gz") as archive:
+        for filename, body in {
+            "quetz/Chart.yaml": f'name: quetz\nversion: {version}\nappVersion: "{version}"\n'.encode(),
+            "quetz/values.yaml": b"mode: migrate\n",
+            "quetz/values.schema.json": b"{}\n",
+            "quetz/templates/workload.yaml": b"apiVersion: apps/v1\n",
+        }.items():
+            member = tarfile.TarInfo(filename)
+            member.size = len(body)
+            archive.addfile(member, io.BytesIO(body))
+    return path
+
+
+def test_release_can_include_validated_helm_chart(tmp_path):
+    package(tmp_path, "linux-64")
+    package(tmp_path, "osx-64")
+    chart = helm_chart(tmp_path)
+    result = prepare(tmp_path, "--include-chart")
+    assert result.returncode == 0, result.stderr
+    assert (
+        f"{hashlib.sha256(chart.read_bytes()).hexdigest()}  {chart.name}"
+        in (tmp_path / "SHA256SUMS").read_text()
+    )
+    assert len((tmp_path / "SHA256SUMS").read_text().splitlines()) == 4
+
+
+def test_release_rejects_wrong_helm_version(tmp_path):
+    package(tmp_path, "linux-64")
+    package(tmp_path, "osx-64")
+    helm_chart(tmp_path, version="0.0.0")
+    result = prepare(tmp_path, "--include-chart")
+    assert result.returncode != 0
+    assert "Unexpected Helm chart identity/version" in result.stderr
+    assert not (tmp_path / "SHA256SUMS").exists()
+
+
+def test_release_requires_requested_helm_chart(tmp_path):
+    package(tmp_path, "linux-64")
+    package(tmp_path, "osx-64")
+    result = prepare(tmp_path, "--include-chart")
+    assert result.returncode != 0
+    assert f"quetz-{__version__}.tgz" in result.stderr
+    assert not (tmp_path / "SHA256SUMS").exists()

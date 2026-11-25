@@ -6,7 +6,8 @@
 
 A release is a GitHub release containing the tracked source archive,
 SHA-256 checksums,
-and native conda packages for `linux-64` and `osx-64`.
+native conda packages for `linux-64` and `osx-64`,
+and a version-matched Helm chart when the tagged source contains one.
 Apple Silicon (`osx-arm64`) remains a supported workspace platform,
 but its release package is deferred to a separate manual build.
 Windows is not a supported workspace platform.
@@ -50,6 +51,19 @@ and platform coverage and generates `SHA256SUMS`:
 ----
 include::pixi-scripts/prepare_release.py[tag=prepare-release]
 ----
+
+== Package the Kubernetes Helm chart
+
+The chart lives beside the plain Kubernetes examples in `docs/source/_examples/kubernetes/helm/quetz`.
+Its chart `version` and `appVersion` follow the application version through the `tbump` configuration.
+The release environment includes Helm.
+Run `pixi run --locked -e release build-helm` to create `dist/release/quetz-NEW_VERSION.tgz`.
+Pass `--include-chart` to `prepare-release` when assembling a release with that archive.
+The assembler checks the chart identity,
+both version fields,
+and required template/schema files before including its hash in `SHA256SUMS`.
+The GitHub release workflow packages and attaches the chart automatically when present in the tagged source.
+Helm chart registry publication is separate from creating the GitHub release.
 
 == Add the deferred Apple Silicon package
 

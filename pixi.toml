@@ -8,7 +8,7 @@ requires-pixi = ">=0.84.2"
 
 [package]
 name = "quetz-server"
-version = "0.12.0"
+version = "0.13.0"
 description = "The mamba-org server for conda packages"
 license = "BSD-3-Clause"
 
@@ -76,6 +76,7 @@ upload-test-packages = "python pixi-scripts/upload_test_packages.py"
 dev-quetz = { cmd = "quetz", env = { QUETZ_CONFIG_FILE = "$PIXI_PROJECT_ROOT/dev_config.toml" } }
 
 [feature.dev.dependencies]
+kubernetes-helm = "*"
 black = "*"
 flake8 = "*"
 isort = "*"
@@ -119,6 +120,7 @@ types-six = "*"
 types-toml = "*"
 types-ujson = "*"
 types-aiofiles = "*"
+types-pyyaml = "*"
 
 [feature.lint.tasks]
 lint = "prek run --all-files"
@@ -133,12 +135,14 @@ docs-site = "python pixi-scripts/render_docs.py"
 docs-asciidoc = "asciidoctor --failure-level WARN -R . -D docs/build/asciidoc README.adoc CONTRIBUTING.adoc RELEASE.adoc CHANGELOG.adoc plugins/README.adoc plugins/*/README.adoc plugins/*/docs/*.adoc"
 
 [feature.release.dependencies]
+kubernetes-helm = "*"
 python-build = "*"
 twine = "*"
 setuptools = ">=41,<81"
 wheel = "*"
 
 [feature.release.tasks]
+build-helm = "helm package docs/source/_examples/kubernetes/helm/quetz --destination dist/release"
 build-conda = "pixi publish --path . --target-dir dist/release"
 prepare-release = "python pixi-scripts/prepare_release.py"
 build-python = "python -m build --no-isolation --outdir dist/python"

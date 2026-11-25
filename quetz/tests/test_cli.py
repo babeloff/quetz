@@ -724,3 +724,32 @@ def test_plugin_install_requires_pixi(tmp_path, mocker):
     result = runner.invoke(cli.app, ["plugin", "install", str(tmp_path)])
     assert result.exit_code != 0
     assert "Pixi" in result.output
+
+
+def test_init_db_can_prepare_mounted_storage(config, config_dir, tmp_path, mocker):
+    target = tmp_path / "persistent-volume" / "deployment"
+    mocker.patch.dict(
+        os.environ, {"QUETZ_CONFIG_FILE": str(Path(config_dir) / "config.toml")}
+    )
+    migrate = mocker.patch("quetz.cli._run_migrations")
+    result = runner.invoke(cli.app, ["init-db", str(target), "--create-deployment"])
+    assert result.exit_code == 0, result.output
+    assert (target / "channels").is_dir()
+    migrate.assert_called_once_with(config.sqlalchemy_database_url)
+    result = runner.invoke(cli.app, ["init-db", str(target), "--create-deployment"])
+    assert result.exit_code == 0, result.output
+    assert (target / "channels").is_dir()
+
+
+def test_init_db_keeps_existing_storage(config, config_dir, tmp_path, mocker):
+    target = tmp_path / "deployment"
+    (target / "channels").mkdir(parents=True)
+    package = target / "channels" / "preserve.conda"
+    package.write_bytes(b"package")
+    mocker.patch.dict(
+        os.environ, {"QUETZ_CONFIG_FILE": str(Path(config_dir) / "config.toml")}
+    )
+    mocker.patch("quetz.cli._run_migrations")
+    result = runner.invoke(cli.app, ["init-db", str(target), "--create-deployment"])
+    assert result.exit_code == 0, result.output
+    assert package.read_bytes() == b"package"

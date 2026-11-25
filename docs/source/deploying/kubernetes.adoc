@@ -1,0 +1,388 @@
+= Deploy Quetz on Kubernetes with Keycloak
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+This guide deploys Quetz 0.13.0 as one Linux AMD64 replica with PostgreSQL,
+a persistent volume for packages,
+and HTTPS ingress.
+It uses Keycloak as the authority for the server roles in xref:../qeps/qep-001-user-permissions.adoc[QEP 1].
+PostgreSQL,
+Keycloak,
+the ingress controller,
+a NetworkPolicy-capable CNI,
+a storage provisioner,
+and a TLS certificate must already be available.
+The example does not install those services.
+For the configurable chart alongside these manifests,
+see xref:helm.adoc[Install Quetz with Helm].
+
+== Configure Keycloak application roles
+
+Follow xref:oidc.adoc[Configure OIDC with Keycloak] to create a confidential client named `quetz` with standard authorization code flow and PKCE S256.
+Register the exact redirect URI `https://packages.example.org/auth/oidc/authorize`.
+Quetz's callback ends in `/authorize`.
+Replace the example hostname with the externally visible ingress hostname and preserve it in the forwarded Host header.
+
+Create `owner`,
+`maintainer`,
+and `member` as roles of the `quetz` client.
+Keep them out of realm default roles and any default composite or group role that would grant new users server privileges.
+Users without an explicitly mapped role receive a null server role.
+Add an Audience protocol mapper with Included Client Audience `quetz` and enable its inclusion in access tokens and introspection.
+Ensure the role mapper includes `resource_access.quetz.roles` in introspection responses.
+For lightweight tokens,
+explicitly configure the required introspection claims.
+Use Keycloak's client-scope evaluation and an actual introspection response to check `iss`,
+`sub`,
+`aud`,
+`exp`,
+`token_type`,
+`preferred_username`,
+and the role path.
+See the https://www.keycloak.org/docs/latest/server_admin/index.html[Keycloak administration reference] for audience mappers and service accounts.
+
+For automation,
+create a separate confidential client such as `quetz-ci`,
+enable its service account,
+and assign the required `quetz` client roles to that account.
+Its role scope mappings must allow those roles,
+and its tokens must include audience `quetz`.
+Use client-credentials access tokens in `Authorization: Bearer <access-token>`.
+Enabling service accounts on the interactive `quetz` client is only needed if you also use that client's service account.
+
+Quetz introspects each authenticated request and synchronizes the effective server role.
+Provider-managed role mutation through `PUT /api/users/{username}/role` returns HTTP 409.
+Manage server-role assignments in Keycloak.
+Continue managing channel and package memberships through Quetz's API/UI;
+those grants remain independent of the server role.
+A maintainer can access all channels,
+so assign that role deliberately when automating channel administration.
+
+== Prepare an image and site-specific configuration
+
+The GitHub release contains source and native conda packages.
+OCI publication is a separate operation;
+the existence of a release does not imply a corresponding GHCR image exists.
+Build the released source with Podman and push it to a registry your cluster can pull from:
+
+[source,bash]
+----
+git checkout v0.13.0
+podman build -f Containerfile -t registry.example.org/quetz:v0.13.0 .
+podman push registry.example.org/quetz:v0.13.0
+----
+
+Use the same image for the migration Job and Deployment.
+Replace the image reference in the example manifests,
+preferably with its registry digest,
+and configure `imagePullSecrets` if the registry requires authentication.
+The production image defaults to UID/GID `10001:10001`.
+It supports a read-only root filesystem when `/data` and `/tmp` are writable.
+The sample schedules only on AMD64 nodes;
+an Apple Silicon conda package is not a Linux ARM64 image.
+
+Copy `docs/source/_examples/kubernetes/` to your deployment configuration repository.
+In the following commands,
+run from that copied directory.
+Customize these values before applying the manifests:
+
+* `config.toml`: trusted public Keycloak issuer and client identity.
+* `workload.yaml` and `migrate.yaml`: registry image,
+resource sizing,
+and `FORWARDED_ALLOW_IPS` for the actual trusted ingress source addresses.
+The example `10.244.0.0/16` must match your networking;
+avoid trusting arbitrary client addresses.
+Uvicorn reads this environment variable when Quetz enables proxy headers.
+* `ingress.yaml`: ingress class,
+public hostname,
+and TLS Secret name.
+Configure your controller to preserve Host,
+overwrite untrusted forwarding headers,
+redirect public HTTP to HTTPS,
+and allow your intended package upload size and transfer duration.
+* `bootstrap.yaml`: namespace,
+volume capacity,
+and StorageClass if the cluster has no suitable default.
+The CSI driver must support the requested `fsGroup` ownership for UID 10001 to write the volume.
+* `network-policy.yaml`: real ingress namespace/pod selectors,
+DNS endpoints,
+Keycloak address ranges,
+and PostgreSQL address ranges.
+The documentation-only IPs `203.0.113.10/32` and `198.51.100.20/32` must be replaced.
+
+The nonsecret application configuration is:
+
+[source%collapsible,toml]
+----
+include::../_examples/kubernetes/config.toml[tag=kubernetes-config]
+----
+
+The example does not enable Quetz's global HTTP-to-HTTPS redirect middleware,
+so kubelet HTTP probes can reach the service directly.
+The ingress provides public HTTPS enforcement,
+and the session cookie requires HTTPS.
+Forwarding the correct scheme is necessary for the OIDC redirect URI and secure cookies.
+
+== Create workload identity and credentials
+
+Quetz's server roles are application permissions.
+They do not map to Kubernetes `Role` or `ClusterRole` objects.
+The workload does not need Kubernetes API permissions to authenticate users or enforce channel permissions.
+Use the dedicated ServiceAccount below without RoleBindings or a mounted API token.
+Both the ServiceAccount and Pod specifications disable automatic token mounting,
+following Kubernetes' https://kubernetes.io/docs/concepts/security/service-accounts/[ServiceAccount guidance].
+
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/bootstrap.yaml[tag=kubernetes-bootstrap]
+----
+
+[source,bash]
+----
+kubectl apply -f bootstrap.yaml
+kubectl -n quetz create configmap quetz-config --from-file=config.toml --dry-run=client -o yaml | kubectl apply -f -
+----
+
+Provision a namespace-scoped Secret named `quetz-runtime` with these keys:
+
+[cols="1,3",options="header"]
+|===
+|Key |Value
+|`QUETZ_SESSION_SECRET` |Strong persistent random secret shared by server instances and preserved across restarts.
+Rotating it invalidates existing browser sessions.
+|`QUETZ_OIDC_CLIENT_SECRET` |The confidential `quetz` client's secret.
+|`QUETZ_SQLALCHEMY_DATABASE_URL` |Existing PostgreSQL database,
+for example `postgresql://quetz:PERCENT_ENCODED_PASSWORD@database.example.org:5432/quetz?sslmode=require&connect_timeout=5`.
+Use `sslmode=verify-full` and mount the appropriate CA file when verifying the database hostname.
+|===
+
+Use External Secrets,
+SOPS,
+OpenBao,
+or your existing secret management process to create this Secret.
+For a local operator-managed env file outside the repository,
+the equivalent command is:
+
+[source,bash]
+----
+kubectl -n quetz create secret generic quetz-runtime --from-env-file=/secure/path/quetz-runtime.env
+----
+
+Grant the database identity permission to run schema migrations and normal Quetz operations on its database.
+The migration Job needs the database configuration and the same required runtime configuration as the server.
+Only those workloads reference the runtime Secret in these examples.
+A kubelet can inject a referenced Secret without granting the application's ServiceAccount permission to read Secrets through the API.
+Protect access to Secrets and workload editing separately through operator RBAC.
+
+== Restrict network traffic
+
+The policy permits incoming application traffic from the selected ingress controller,
+DNS queries to the selected cluster DNS pods,
+HTTPS to Keycloak,
+and PostgreSQL traffic to the configured database.
+It applies to both the migration Job and server because they share the Quetz label.
+
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/network-policy.yaml[tag=kubernetes-network-policy]
+----
+
+[source,bash]
+----
+kubectl apply -f network-policy.yaml
+----
+
+Standard NetworkPolicy rules select IPs and pods rather than DNS names.
+DNS resolution alone does not permit traffic to the resolved address.
+Use your CNI's FQDN policy support or maintain the real destination CIDRs when addresses change.
+NodeLocal DNS,
+host-network ingress,
+and service address translation may require different selectors or IP rules;
+validate policy behavior with your cluster's CNI.
+Policies are additive,
+so another policy granting broad egress can widen these permissions.
+See the Kubernetes https://kubernetes.io/docs/concepts/services-networking/network-policies/[NetworkPolicy reference].
+
+Keep the exact public issuer even when using internal routing or split-horizon DNS.
+Its discovery response and certificate must remain valid for that issuer.
+Quetz must reach every advertised discovery,
+JWKS,
+token,
+and introspection endpoint.
+Provider unavailability returns HTTP 503 for authenticated requests.
+Liveness does not depend on Keycloak,
+so an identity-provider outage should not cause a restart loop.
+
+Mirroring and proxy channels require additional egress to each approved upstream repository.
+The base policy intentionally provides none.
+For S3 storage,
+add TCP 443 egress to the real endpoint CIDRs or your CNI's FQDN policy,
+then supply the `[s3]` configuration and `QUETZ_S3_ACCESS_KEY`/`QUETZ_S3_SECRET_KEY` through the runtime Secret when credentials are needed.
+Mount a CA bundle and configure the Python clients if using a private certificate authority.
+See xref:configuration.adoc[Configuration] for storage options.
+
+== Initialize storage and deploy
+
+Run schema migrations once before starting or upgrading the server.
+The Job uses `init-db --create-deployment` to create `/data/channels` idempotently and migrate the configured database.
+It preserves existing files.
+Mounted configuration stays in `/etc/quetz/config.toml`,
+and credentials remain in the environment.
+
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/migrate.yaml[tag=kubernetes-migration]
+----
+
+[source,bash]
+----
+kubectl apply -f migrate.yaml
+kubectl -n quetz wait --for=condition=complete --timeout=600s job/quetz-migrate-0130
+kubectl -n quetz logs job/quetz-migrate-0130
+----
+
+Proceed only after successful migration.
+Then create the single server replica and Service:
+
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/workload.yaml[tag=kubernetes-workload]
+----
+
+[source,bash]
+----
+kubectl apply -f workload.yaml
+kubectl -n quetz rollout status deployment/quetz --timeout=300s
+----
+
+The writable package directory is on the PVC;
+`/tmp` is an ephemeral scratch volume.
+The Pod drops all capabilities,
+disallows privilege escalation,
+and uses the runtime's default seccomp profile.
+It runs one Quetz server and its normal job supervisor.
+Keep `replicas: 1` and the `Recreate` strategy with this local store and supervisor topology.
+`ReadWriteOnce` limits volume attachment by node and does not provide an application-level single-writer lock.
+A multi-replica design also needs coordinated job supervision,
+shared package storage,
+database capacity planning,
+and a common session secret;
+changing the replica count alone is insufficient.
+
+== Expose HTTPS and verify authentication
+
+Create the TLS Secret using your certificate issuer or existing certificate process,
+then apply the ingress:
+
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/ingress.yaml[tag=kubernetes-ingress]
+----
+
+[source,bash]
+----
+kubectl apply -f ingress.yaml
+curl --fail https://packages.example.org/health/live
+curl --fail https://packages.example.org/health/ready
+----
+
+The unauthenticated `/health/live` endpoint checks the HTTP process.
+`/health/ready` also executes a database query and returns HTTP 503 with a generic error if the query fails.
+Readiness does not check schema version,
+package-store availability,
+or Keycloak.
+Startup and liveness use the process endpoint;
+readiness uses the database endpoint,
+following Kubernetes' https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/[probe semantics].
+Use a PostgreSQL connection timeout shorter than the probe timeout.
+
+Open `https://packages.example.org/auth/oidc/login` and confirm that Keycloak receives exactly the registered HTTPS callback URI.
+Verify null,
+member,
+maintainer,
+and owner behavior using separate test accounts.
+Use an automation access token to call `/api/me` and create an allowed channel.
+Confirm that local API keys fail with `oidc.only = true` and that role updates return HTTP 409.
+Channel membership changes remain Quetz operations.
+For urgent revocation,
+revoke the provider session or token and confirm an introspection response with `active = false`;
+role changes may otherwise remain in already issued tokens.
+
+== Upgrade and recover
+
+Back up both PostgreSQL and the package store before a schema upgrade.
+Keep the session secret stable.
+Scale the server down before running migrations against the same PVC,
+wait until its old Pod terminates and the volume is released,
+then run a newly named migration Job using the new image and configuration.
+A completed Job is not rerun by applying the same manifest;
+Job pod templates are immutable.
+After migration succeeds,
+apply the updated workload and return to one replica.
+Use `kubectl rollout restart deployment/quetz -n quetz` after changing environment-backed Secrets or mounted configuration.
+Quetz does not reload its configuration automatically.
+A schema migration may require restoring the database and matching package snapshot to roll back.
+
+When readiness fails,
+inspect Pod logs and PostgreSQL connectivity before restarting the Pod.
+When browser login redirects to HTTP or the wrong hostname,
+check trusted proxy addresses and forwarded Host/scheme handling.
+When authenticated requests return HTTP 503,
+check issuer discovery,
+TLS trust,
+network policies,
+and Keycloak introspection availability.
+New manifests must be server-dry-run validated against your own cluster before deployment:
+
+[source,bash]
+----
+kubectl apply --dry-run=server -f bootstrap.yaml -f network-policy.yaml -f migrate.yaml -f workload.yaml -f ingress.yaml
+----
+
+== Validation scope
+
+The 0.13.0 implementation passed 967 application and helper tests with 23 skips,
+excluding the release-assembly tests that require a committed version.
+All eight example Kubernetes resources passed strict schema validation with kubeconform.
+Documentation rendering,
+local links,
+Ruff,
+mypy,
+and Python source/wheel metadata checks passed.
+The source distribution contains this guide and the example manifests.
+
+A locally built Podman image ran as UID/GID `10001:10001` with a read-only root filesystem,
+dropped capabilities,
+a writable data volume,
+and temporary scratch storage.
+Its initialization command completed and both health endpoints returned HTTP 200.
+That smoke test used SQLite and a configured but uncontacted OIDC provider.
+No live Kubernetes cluster,
+PostgreSQL deployment,
+ingress controller,
+CNI policy enforcement,
+or live Keycloak login was exercised by these checks.
+Run the cluster-specific dry-run and acceptance steps above before deploying the examples.
+
+== Runtime implementation reference
+
+The initialization option prepares deployment storage without writing credentials to it:
+
+[source%collapsible,python]
+----
+include::../../../quetz/cli.py[tag=initialize-deployment]
+----
+
+Readiness and liveness have separate contracts:
+
+[source%collapsible,python]
+----
+include::../../../quetz/main.py[tag=health-probes]
+----

@@ -10,6 +10,10 @@
 include::{site-root}/_partials/navigation.adoc[]
 
 Use a confidential OIDC client to authenticate browser users and API clients and supply the server roles defined by xref:../qeps/qep-001-user-permissions.adoc[QEP 1].
+For a workload with namespace-scoped credentials,
+network policy,
+and TLS ingress,
+see xref:kubernetes.adoc[Deploy Quetz on Kubernetes with Keycloak].
 The provider must expose discovery,
 JWKS,
 and authenticated token introspection endpoints.

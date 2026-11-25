@@ -10,6 +10,7 @@ import tarfile
 import zipfile
 from pathlib import Path
 
+import yaml
 import zstandard
 
 
@@ -44,6 +45,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--directory", type=Path, default=Path("dist/release"))
     parser.add_argument("--platform", action="append", dest="platforms")
+    parser.add_argument("--include-chart", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     version = runpy.run_path(str(root / "quetz/_version.py"))["__version__"]
@@ -57,6 +59,22 @@ def main():
         found.append(index["subdir"])
     if set(found) != platforms or len(found) != len(platforms):
         raise ValueError(f"Expected one package per {sorted(platforms)}; found {found}")
+    chart = args.directory / f"quetz-{version}.tgz"
+    if args.include_chart:
+        with tarfile.open(chart) as archive:
+            metadata = yaml.safe_load(archive.extractfile("quetz/Chart.yaml"))
+            required = {
+                "quetz/values.yaml",
+                "quetz/values.schema.json",
+                "quetz/templates/workload.yaml",
+            }
+            if (
+                metadata.get("name") != "quetz"
+                or metadata.get("version") != version
+                or metadata.get("appVersion") != version
+                or not required <= set(archive.getnames())
+            ):
+                raise ValueError("Unexpected Helm chart identity/version or contents")
     source = args.directory / f"quetz-{version}.tar.gz"
     subprocess.run(
         [
@@ -75,7 +93,7 @@ def main():
         archived = archive.extractfile(f"quetz-{version}/quetz/_version.py").read()
     if archived != (root / "quetz/_version.py").read_bytes():
         raise ValueError("Commit the version bump before preparing the release")
-    artifacts = [source, *packages]
+    artifacts = [source, *packages, *([chart] if args.include_chart else [])]
     (args.directory / "SHA256SUMS").write_text(
         "".join(
             f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n"

@@ -13,6 +13,8 @@ There are many options for deploying a package repository with Quetz.
 You can deploy Quetz either locally for testing, on a production server or in the cloud.
 The process can be tailored to your needs and existing infrastructure.
 
+* xref:kubernetes.adoc[Kubernetes with Keycloak]
+* xref:helm.adoc[Helm chart]
 * xref:configuration.adoc[Configuration]
 * xref:authenticators.adoc[Authenticators]
 * xref:oidc.adoc[OIDC with Keycloak]

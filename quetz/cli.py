@@ -326,18 +326,31 @@ def _is_deployment(base_dir: Path):
     return False
 
 
+# tag::initialize-deployment[]
 @app.command()
 def init_db(
     path: Annotated[str, typer.Argument(help="The path of the deployment")],
+    create_deployment: Annotated[
+        bool,
+        typer.Option(
+            help="Create the deployment and channels directories before migrating."
+        ),
+    ] = False,
 ):
     """init database and fill users from config file [users] sections"""
 
     logger.info("Initializing database")
 
     config = _get_config(path)
+    if create_deployment:
+        Path(path).mkdir(parents=True, exist_ok=True)
+        (Path(path) / "channels").mkdir(exist_ok=True)
 
     with working_directory(path):
         _run_migrations(config.sqlalchemy_database_url)
+
+
+# end::initialize-deployment[]
 
 
 @app.command()

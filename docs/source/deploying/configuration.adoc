@@ -10,6 +10,11 @@
 include::{site-root}/_partials/navigation.adoc[]
 
 [[configfile]]
+Environment variables override individual configuration values while preserving other values in the same TOML section.
+For example,
+`QUETZ_OIDC_CLIENT_SECRET` supplies the secret while the issuer and role mappings remain in a mounted configuration file.
+See xref:kubernetes.adoc[Kubernetes with Keycloak] for a deployment using this split.
+
 == Config file
 
 Most functionalities of quetz can be configured with a config file in toml format, such as this one:

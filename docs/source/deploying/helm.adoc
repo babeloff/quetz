@@ -1,0 +1,213 @@
+= Install Quetz with Helm
+:idprefix:
+:idseparator: -
+:toc: left
+:toclevels: 3
+:sectanchors:
+:site-root: ..
+:favicon: {site-root}/_static/quetz_favicon.ico
+
+include::{site-root}/_partials/navigation.adoc[]
+
+The chart in `docs/source/_examples/kubernetes/helm/quetz` provides the xref:kubernetes.adoc[Kubernetes deployment] as configurable Helm resources.
+It requires the same image,
+PostgreSQL database,
+Keycloak client,
+TLS certificate,
+storage provisioner,
+and network configuration.
+Use either the plain manifests or this chart to own a deployment's resources.
+Do not install both over the same named resources.
+The Helm chart does not install PostgreSQL or Keycloak and does not create Secrets or Kubernetes RBAC grants.
+
+== Prepare values and credentials
+
+Use the chart from the source archive,
+or download the `quetz-0.13.0.tgz` release asset and verify it against the release's `SHA256SUMS`.
+The examples below run from the repository root and use the unpacked chart.
+Use the packaged chart path instead of the directory when installing the archive.
+
+Create the `quetz` namespace,
+apply your Pod Security namespace policy,
+and provision the `quetz-runtime` and TLS Secrets described in xref:kubernetes.adoc#create-workload-identity-and-credentials[the Kubernetes guide].
+The operator running Helm needs permissions to manage these namespaced resources and Helm's release records.
+The workload's ServiceAccount has no API token or RoleBindings.
+
+Copy the chart's `values.yaml` to your deployment configuration repository and edit it as `site-values.yaml`.
+Supply real values for:
+
+* `image.repository`,
+`image.tag` or `image.digest`,
+and any `imagePullSecrets`.
+The default tag follows chart `appVersion` with a `v` prefix.
+The GitHub release does not automatically publish its image.
+* `existingSecret`,
+which names the externally managed Secret containing the database URL,
+session secret,
+and OIDC client secret.
+Keep secret values out of Helm values and command-line flags;
+Helm records supplied values in its release history.
+* `oidc.issuer`,
+`oidc.clientId`,
+`oidc.audience`,
+and the role mappings.
+OIDC-only authentication and secure session cookies are always enabled by this chart.
+Register `/auth/oidc/authorize` as the browser callback path.
+* `trustedProxyIPs`,
+which defaults to loopback and must be changed to your actual trusted ingress source addresses.
+* `ingress.className`,
+`ingress.hostname`,
+`ingress.tlsSecret`,
+and controller-specific annotations for upload limits and HTTPS handling.
+* `networkPolicy` selectors,
+destination CIDRs,
+and optional `extraEgress` rules for approved mirrors or other dependencies.
+The default addresses are documentation placeholders.
+* `persistence.size` and `persistence.storageClass`,
+or `persistence.existingClaim` for an already provisioned volume.
+An empty storage class setting omits the field and uses the cluster default.
+The chart-created PVC is retained on uninstall by default through `persistence.retain`.
+Reinstalling with retained data requires setting `persistence.existingClaim` to that PVC's name.
+* `resources` and `nodeSelector` for your image and capacity.
+`replicaCount` is constrained to one because this chart uses one local package volume and one job supervisor.
+
+The values schema rejects unknown settings,
+HTTP issuers,
+unsupported replica counts,
+and inline OIDC client-secret settings.
+Runtime role mappings must also satisfy Quetz's distinct-role validation.
+See Helm's https://helm.sh/docs/topics/charts/[chart format and values-schema reference].
+
+== Initialize and start
+
+The chart defaults to `mode: migrate`.
+In this mode the server Deployment has zero replicas,
+and a revision-specific Job creates the deployment directories and runs database migrations.
+The ConfigMap,
+ServiceAccount,
+PVC,
+and policies are regular chart resources available to the Job.
+No pre-install hook depends on resources that have not yet been installed.
+
+[source,bash]
+----
+pixi run --locked -e release helm lint --strict docs/source/_examples/kubernetes/helm/quetz -f site-values.yaml
+pixi run --locked -e release helm upgrade --install quetz docs/source/_examples/kubernetes/helm/quetz --namespace quetz -f site-values.yaml --set mode=migrate --wait --wait-for-jobs --timeout 10m
+kubectl -n quetz logs -l app.kubernetes.io/instance=quetz,app.kubernetes.io/component=migration
+----
+
+Inspect migration results before starting the server.
+Switch to serving mode using the same values:
+
+[source,bash]
+----
+pixi run --locked -e release helm upgrade quetz docs/source/_examples/kubernetes/helm/quetz --namespace quetz -f site-values.yaml --set mode=serve --wait --timeout 5m
+kubectl -n quetz rollout status deployment/quetz --timeout=300s
+----
+
+Serving mode removes the completed migration Job and starts one server replica.
+Preserve the Job logs before switching modes if your operations process requires them.
+The Service selects server Pods only;
+the network policy covers both server and migration Pods.
+Resource names and selectors are scoped to the Helm release name.
+The ConfigMap checksum triggers a server rollout when chart configuration changes.
+Changing environment-backed credentials in an external Secret requires `kubectl rollout restart`.
+
+== Upgrade safely
+
+Back up the database and package volume and keep the session secret stable.
+Stop the serving Pod before entering migration mode during an upgrade:
+
+[source,bash]
+----
+kubectl -n quetz scale deployment/quetz --replicas=0
+kubectl -n quetz wait --for=delete pod -l app.kubernetes.io/instance=quetz,app.kubernetes.io/component=server --timeout=300s
+----
+
+Confirm that the old server is gone and the volume can attach to the migration Pod.
+Then run the migration-mode and serving-mode Helm upgrades above with the new image and chart.
+Helm does not guarantee that changing multiple resources will first stop an existing server before starting the Job;
+the explicit stop is required for this local-volume topology.
+Each migration Job name includes the Helm revision,
+so subsequent migrations do not mutate an immutable existing Job template.
+Automatic Helm rollback does not undo database migrations.
+Restore a compatible database and package snapshot if schema rollback is required.
+Uninstall retains the externally managed Secrets and,
+by default,
+the chart-created PVC.
+Delete retained data only through your normal storage retirement procedure.
+
+== Validate and package
+
+Render both modes and validate them against your cluster's admission rules before installation:
+
+[source,bash]
+----
+pixi run --locked -e release helm template quetz docs/source/_examples/kubernetes/helm/quetz --namespace quetz -f site-values.yaml --set mode=migrate > /tmp/quetz-migrate.yaml
+pixi run --locked -e release helm template quetz docs/source/_examples/kubernetes/helm/quetz --namespace quetz -f site-values.yaml --set mode=serve > /tmp/quetz-serve.yaml
+kubectl apply --dry-run=server -f /tmp/quetz-migrate.yaml
+kubectl apply --dry-run=server -f /tmp/quetz-serve.yaml
+pixi run --locked -e release build-helm
+----
+
+The release workflow packages the chart and includes it in the release checksum manifest.
+It does not push the chart to an OCI registry.
+The automated chart tests cover modes,
+Secret isolation,
+release scoping,
+custom OIDC values,
+existing storage and identity,
+and rejected settings.
+Helm lint and strict Kubernetes schema validation exercise the rendered resources.
+These checks do not establish successful installation against a live Kubernetes cluster.
+
+== Values and template reference
+
+.Chart metadata
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/helm/quetz/Chart.yaml[tag=helm-chart]
+----
+
+The complete supported input surface is defined here:
+
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/helm/quetz/values.yaml[tag=helm-values]
+----
+
+.Values schema
+[source%collapsible,json]
+----
+include::../_examples/kubernetes/helm/quetz/values.schema.json[]
+----
+
+.Resource identities and shared Pod/container settings
+[source%collapsible,gotemplate]
+----
+include::../_examples/kubernetes/helm/quetz/templates/_helpers.tpl[tag=helm-helpers]
+----
+
+.ConfigMap, ServiceAccount, storage, and Service
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/helm/quetz/templates/resources.yaml[tag=helm-resources]
+----
+
+.Deployment and migration Job
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/helm/quetz/templates/workload.yaml[tag=helm-workload]
+----
+
+.HTTPS ingress
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/helm/quetz/templates/ingress.yaml[tag=helm-ingress]
+----
+
+.Network policy
+[source%collapsible,yaml]
+----
+include::../_examples/kubernetes/helm/quetz/templates/network-policy.yaml[tag=helm-network-policy]
+----

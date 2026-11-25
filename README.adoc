@@ -127,6 +127,13 @@ pixi run -e containers containers-down
 The development stack mounts `quetz/` for automatic reload and keeps its installed environment inside the image.
 The production image expects an initialized deployment at `/quetz-deployment`.
 
+For Kubernetes with Keycloak,
+see link:https://github.com/babeloff/quetz/blob/main/docs/source/deploying/kubernetes.adoc[the Kubernetes deployment guide].
+It includes a migration Job,
+persistent storage,
+Pod security,
+and network-policy examples.
+
 == S3 Backend
 
 To enable the S3 backend, you will first require the s3fs library:

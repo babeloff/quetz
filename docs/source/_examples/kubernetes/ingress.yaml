@@ -1,0 +1,24 @@
+# tag::kubernetes-ingress[]
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quetz
+  namespace: quetz
+spec:
+  ingressClassName: YOUR_INGRESS_CLASS
+  tls:
+  - hosts:
+    - packages.example.org
+    secretName: quetz-tls
+  rules:
+  - host: packages.example.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: quetz
+            port:
+              name: http
+# end::kubernetes-ingress[]

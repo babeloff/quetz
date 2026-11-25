@@ -9,10 +9,11 @@ RUN printf '#!/bin/bash\n' > /entrypoint.sh && \
     printf '\nexec "$@"\n' >> /entrypoint.sh && chmod +x /entrypoint.sh
 
 FROM docker.io/library/ubuntu:24.04
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 HOME=/tmp PYTHONDONTWRITEBYTECODE=1
 COPY --from=build /code/.pixi/envs/prod /code/.pixi/envs/prod
 COPY --from=build /code/quetz /code/quetz
 COPY --from=build /entrypoint.sh /entrypoint.sh
+USER 10001:10001
 WORKDIR /tmp
 EXPOSE 8000
 ENTRYPOINT ["/entrypoint.sh"]

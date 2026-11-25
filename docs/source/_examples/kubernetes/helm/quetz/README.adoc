@@ -1,0 +1,12 @@
+= Quetz Helm chart
+
+Deploy Quetz with Keycloak-managed application permissions,
+an existing runtime Secret,
+and persistent package storage.
+Start in `mode: migrate`,
+then upgrade to `mode: serve` after successful migration.
+
+See https://github.com/babeloff/quetz/blob/main/docs/source/deploying/helm.adoc[the Helm deployment guide] for configuration,
+installation,
+upgrades,
+and the complete values/template reference.

@@ -34,11 +34,14 @@ jobs:
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
           pixi run --locked -e release python -c 'import os; from quetz._version import __version__; assert os.environ["RELEASE_TAG"] == "v" + __version__'
-          gh release download "$RELEASE_TAG" --dir dist/release --pattern '*.conda' --pattern '*.tar.gz' --pattern 'SHA256SUMS*'
+          gh release download "$RELEASE_TAG" --dir dist/release --pattern '*.conda' --pattern '*.tar.gz' --pattern '*.tgz' --pattern 'SHA256SUMS*'
           (cd dist/release && for manifest in SHA256SUMS*; do sha256sum --check "$manifest"; done)
           platforms=(--platform linux-64 --platform osx-64)
           if [[ -f dist/release/SHA256SUMS-osx-arm64 ]]; then
             platforms+=(--platform osx-arm64)
+          fi
+          if compgen -G 'dist/release/*.tgz' > /dev/null; then
+            platforms+=(--include-chart)
           fi
           pixi run --locked -e release prepare-release "${platforms[@]}"
       - name: Mirror released packages to prefix.dev

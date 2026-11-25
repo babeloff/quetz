@@ -36,7 +36,8 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from importlib_metadata import entry_points
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -2009,10 +2010,22 @@ def serve_channel_index(
     return serve_path("index.html", channel, accept_encoding, session, dao)
 
 
-@app.get("/health/ready", status_code=status.HTTP_200_OK)
+# tag::health-probes[]
 @app.get("/health/live", status_code=status.HTTP_200_OK)
 def is_ready_live():
     return {"component": "http-server", "status": "ok"}
+
+
+@app.get("/health/ready", status_code=status.HTTP_200_OK)
+def is_ready(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        raise HTTPException(503, "Database is unavailable") from exc
+    return {"component": "http-server", "status": "ok"}
+
+
+# end::health-probes[]
 
 
 frontend.register(app)

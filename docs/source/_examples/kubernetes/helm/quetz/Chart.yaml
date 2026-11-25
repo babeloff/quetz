@@ -1,0 +1,9 @@
+# tag::helm-chart[]
+apiVersion: v2
+name: quetz
+description: Quetz with OIDC, persistent package storage, and explicit migration mode
+type: application
+version: 0.13.0
+appVersion: "0.13.0"
+kubeVersion: ">=1.26.0-0"
+# end::helm-chart[]

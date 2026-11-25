@@ -2,6 +2,17 @@
 :idprefix:
 :idseparator: -
 
+[[v0130]]
+== 0.13.0
+
+* Document Kubernetes deployment with Keycloak-managed application roles and independent workload permissions.
+* Include a configurable Helm chart with separate migration and serving modes, a values schema, and a checksummed release archive.
+* Add manifests for a non-root workload, migration Job, persistent storage, HTTPS ingress, and restricted network access.
+* Add `init-db --create-deployment` to prepare mounted deployment storage before schema migrations.
+* Make readiness check database connectivity while keeping liveness independent of dependencies.
+* Preserve TOML section settings when overriding individual credentials through environment variables.
+* Run the production container as UID/GID `10001:10001`.
+
 [[v0120]]
 == 0.12.0
 

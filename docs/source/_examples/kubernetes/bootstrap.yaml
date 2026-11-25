@@ -1,0 +1,27 @@
+# tag::kubernetes-bootstrap[]
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quetz
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: quetz
+  namespace: quetz
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: quetz-data
+  namespace: quetz
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+# end::kubernetes-bootstrap[]

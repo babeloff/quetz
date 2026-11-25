@@ -314,7 +314,11 @@ class Config:
         if path:
             self.config.update(self._read_config(path))
 
-        self.config.update(self._get_environ_config())
+        for section, values in self._get_environ_config().items():
+            if isinstance(values, dict) and isinstance(self.config.get(section), dict):
+                self.config[section].update(values)
+            else:
+                self.config[section] = values
         self._trigger_update_config()
 
     def _trigger_update_config(self):

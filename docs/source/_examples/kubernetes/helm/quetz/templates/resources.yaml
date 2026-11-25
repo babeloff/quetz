@@ -1,0 +1,53 @@
+# tag::helm-resources[]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quetz.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.toml: |
+    {{- include "quetz.config" . | nindent 4 }}
+{{- if .Values.serviceAccount.create }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "quetz.serviceAccount" . }}
+  namespace: {{ .Release.Namespace }}
+automountServiceAccountToken: false
+{{- end }}
+{{- if not .Values.persistence.existingClaim }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "quetz.claim" . }}
+  namespace: {{ .Release.Namespace }}
+  {{- if .Values.persistence.retain }}
+  annotations:
+    helm.sh/resource-policy: keep
+  {{- end }}
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- with .Values.persistence.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quetz.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    {{- include "quetz.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+# end::helm-resources[]

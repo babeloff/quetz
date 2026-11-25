@@ -1,0 +1,50 @@
+# tag::kubernetes-network-policy[]
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quetz
+  namespace: quetz
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: quetz
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-system
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-controller
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  - to:
+    - ipBlock:
+        cidr: 203.0.113.10/32
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - ipBlock:
+        cidr: 198.51.100.20/32
+    ports:
+    - protocol: TCP
+      port: 5432
+# end::kubernetes-network-policy[]

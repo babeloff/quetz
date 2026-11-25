@@ -1,0 +1,62 @@
+# tag::helm-values[]
+mode: migrate
+replicaCount: 1
+image:
+  repository: registry.example.org/quetz
+  tag: ''
+  digest: ''
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+existingSecret: quetz-runtime
+trustedProxyIPs: 127.0.0.1
+oidc:
+  issuer: https://identity.example.org/realms/quetz
+  clientId: quetz
+  audience: quetz
+  rolesClaim:
+  - resource_access
+  - '{client_id}'
+  - roles
+  ownerRole: owner
+  maintainerRole: maintainer
+  memberRole: member
+serviceAccount:
+  create: true
+  name: ''
+persistence:
+  existingClaim: ''
+  size: 50Gi
+  storageClass: ''
+  retain: true
+nodeSelector:
+  kubernetes.io/arch: amd64
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: '2'
+    memory: 1Gi
+ingress:
+  enabled: true
+  className: YOUR_INGRESS_CLASS
+  hostname: packages.example.org
+  tlsSecret: quetz-tls
+  annotations: {}
+networkPolicy:
+  enabled: true
+  ingressNamespaceLabels:
+    kubernetes.io/metadata.name: ingress-system
+  ingressPodLabels:
+    app.kubernetes.io/name: ingress-controller
+  dnsNamespaceLabels:
+    kubernetes.io/metadata.name: kube-system
+  dnsPodLabels:
+    k8s-app: kube-dns
+  keycloakCIDRs:
+  - 203.0.113.10/32
+  postgresCIDRs:
+  - 198.51.100.20/32
+  postgresPort: 5432
+  extraEgress: []
+# end::helm-values[]

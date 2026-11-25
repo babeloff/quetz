@@ -41,6 +41,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.3-py310h44b86e0_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.3-h7cc23a3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/krb5-1.22.2-hbc21106_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/kubernetes-helm-4.3.2-hd3da7ce_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.46.1-default_hbd61a6d_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20260817.0-cxx17_hbb87c76_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libcap-2.78-h084b8d7_1.conda
@@ -276,7 +277,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.54.0-pyh53cf698_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
-      - conda_source: quetz-server[5177b43b] @ .
+      - conda_source: quetz-server[0922adf7] @ .
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adlfs-2026.8.0-pyhd8ed1ab_0.conda
@@ -451,6 +452,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/grpcio-1.85.4-py311hd079330_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/icu-78.3-py313hbf1d544_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/krb5-1.22.2-h69064fd_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/kubernetes-helm-4.3.2-h34643d1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libabseil-20260817.0-cxx17_h76dead1_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libcrc32c-1.1.2-h484783a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.6-h88b51c2_0.conda
@@ -515,7 +517,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yarl-1.25.1-py311hb660652_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py311hb970d6d_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
-      - conda_source: quetz-server[c80f5ed8] @ .
+      - conda_source: quetz-server[be51450f] @ .
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adlfs-2026.8.0-pyhd8ed1ab_0.conda
@@ -688,6 +690,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/grpcio-1.85.4-py311h48aee52_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/icu-78.3-py310h579977c_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/krb5-1.22.2-h34f8a20_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/kubernetes-helm-4.3.2-h4223ab3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libabseil-20260817.0-cxx17_h08226d7_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libcrc32c-1.1.2-ha89b795_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-23.1.6-hc645fd0_0.conda
@@ -751,7 +754,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yarl-1.25.1-py311hde9f260_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py311h440b913_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - conda_source: quetz-server[6c62b1e4] @ .
+      - conda_source: quetz-server[1808e7e1] @ .
   containers:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -944,7 +947,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.54.0-pyh53cf698_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
-      - conda_source: quetz-server[5177b43b] @ .
+      - conda_source: quetz-server[0922adf7] @ .
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiofiles-25.1.0-pyhcf101f3_1.conda
@@ -1054,7 +1057,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yaml-0.2.7-h5a9b756_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py311hb970d6d_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
-      - conda_source: quetz-server[c80f5ed8] @ .
+      - conda_source: quetz-server[be51450f] @ .
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiofiles-25.1.0-pyhcf101f3_1.conda
@@ -1164,7 +1167,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.7-h4c53d1a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py311h440b913_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - conda_source: quetz-server[6c62b1e4] @ .
+      - conda_source: quetz-server[1808e7e1] @ .
   dev:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1189,6 +1192,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.3-py310h44b86e0_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.3-h7cc23a3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/krb5-1.22.2-hbc21106_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/kubernetes-helm-4.3.2-hd3da7ce_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.46.1-default_hbd61a6d_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20260817.0-cxx17_hbb87c76_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libcap-2.78-h084b8d7_1.conda
@@ -1417,7 +1421,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.54.0-pyh53cf698_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
-      - conda_source: quetz-server[5177b43b] @ .
+      - conda_source: quetz-server[0922adf7] @ .
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adlfs-2026.8.0-pyhd8ed1ab_0.conda
@@ -1592,6 +1596,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/grpcio-1.85.4-py311hd079330_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/icu-78.3-py313hbf1d544_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/krb5-1.22.2-h69064fd_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/kubernetes-helm-4.3.2-h34643d1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libabseil-20260817.0-cxx17_h76dead1_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libcrc32c-1.1.2-h484783a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.6-h88b51c2_0.conda
@@ -1650,7 +1655,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yarl-1.25.1-py311hb660652_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py311hb970d6d_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
-      - conda_source: quetz-server[c80f5ed8] @ .
+      - conda_source: quetz-server[be51450f] @ .
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adlfs-2026.8.0-pyhd8ed1ab_0.conda
@@ -1823,6 +1828,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/grpcio-1.85.4-py311h48aee52_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/icu-78.3-py310h579977c_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/krb5-1.22.2-h34f8a20_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/kubernetes-helm-4.3.2-h4223ab3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libabseil-20260817.0-cxx17_h08226d7_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libcrc32c-1.1.2-ha89b795_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-23.1.6-hc645fd0_0.conda
@@ -1880,7 +1886,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yarl-1.25.1-py311hde9f260_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py311h440b913_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - conda_source: quetz-server[6c62b1e4] @ .
+      - conda_source: quetz-server[1808e7e1] @ .
   docs:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -2004,7 +2010,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.54.0-pyh53cf698_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
-      - conda_source: quetz-server[5177b43b] @ .
+      - conda_source: quetz-server[0922adf7] @ .
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiofiles-25.1.0-pyhcf101f3_1.conda
@@ -2135,7 +2141,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yaml-0.2.7-h5a9b756_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py311hb970d6d_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
-      - conda_source: quetz-server[c80f5ed8] @ .
+      - conda_source: quetz-server[be51450f] @ .
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiofiles-25.1.0-pyhcf101f3_1.conda
@@ -2266,7 +2272,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.7-h4c53d1a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py311h440b913_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - conda_source: quetz-server[6c62b1e4] @ .
+      - conda_source: quetz-server[1808e7e1] @ .
   lint:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -2318,6 +2324,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20261122-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-orjson-3.6.2-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyopenssl-24.1.0.20240722-pyhcf101f3_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20261122-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-redis-4.6.0.20241004-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-requests-2.33.0.20261030-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-setuptools-84.2.0.20261122-pyh5ded981_0.conda
@@ -2346,6 +2353,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20261122-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-orjson-3.6.2-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyopenssl-24.1.0.20240722-pyhcf101f3_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20261122-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-redis-4.6.0.20241004-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-requests-2.33.0.20261030-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-setuptools-84.2.0.20261122-pyh5ded981_0.conda
@@ -2393,6 +2401,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20261122-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-orjson-3.6.2-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyopenssl-24.1.0.20240722-pyhcf101f3_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20261122-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-redis-4.6.0.20241004-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-requests-2.33.0.20261030-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-setuptools-84.2.0.20261122-pyh5ded981_0.conda
@@ -2639,7 +2648,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyh5ded981_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.54.0-pyh53cf698_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
-      - conda_source: quetz-server[5177b43b] @ .
+      - conda_source: quetz-server[0922adf7] @ .
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adlfs-2026.8.0-pyhd8ed1ab_0.conda
@@ -2838,7 +2847,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yarl-1.25.1-py311hb660652_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py311hb970d6d_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
-      - conda_source: quetz-server[c80f5ed8] @ .
+      - conda_source: quetz-server[be51450f] @ .
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adlfs-2026.8.0-pyhd8ed1ab_0.conda
@@ -3033,7 +3042,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yarl-1.25.1-py311hde9f260_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py311h440b913_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - conda_source: quetz-server[6c62b1e4] @ .
+      - conda_source: quetz-server[1808e7e1] @ .
   release:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -3049,6 +3058,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cryptography-50.0.2-py311hc91d8b8_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbus-1.16.2-he8c428d_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.3-py310h44b86e0_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/kubernetes-helm-4.3.2-hd3da7ce_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.46.1-default_hbd61a6d_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libexpat-2.9.0-hd2095e1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libffi-3.7.0-h81df57d_1.conda
@@ -3183,7 +3193,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.54.0-pyh53cf698_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.2-pyh5ded981_0.conda
-      - conda_source: quetz-server[5177b43b] @ .
+      - conda_source: quetz-server[0922adf7] @ .
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiofiles-25.1.0-pyhcf101f3_1.conda
@@ -3294,6 +3304,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/comrak-1.2.0-h3047c83_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/cryptography-50.0.2-py311h55f3a3c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/icu-78.3-py313hbf1d544_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/kubernetes-helm-4.3.2-h34643d1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.6-h88b51c2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libexpat-2.9.0-h6e061ac_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libffi-3.7.0-h6b3a05b_1.conda
@@ -3316,7 +3327,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yaml-0.2.7-h5a9b756_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py311hb970d6d_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
-      - conda_source: quetz-server[c80f5ed8] @ .
+      - conda_source: quetz-server[be51450f] @ .
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiofiles-25.1.0-pyhcf101f3_1.conda
@@ -3427,6 +3438,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/comrak-1.2.0-ha19a7bb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/cryptography-50.0.2-py311h4ae9a88_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/icu-78.3-py310h579977c_2.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/kubernetes-helm-4.3.2-h4223ab3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-23.1.6-hc645fd0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libexpat-2.9.0-h6111c0a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libffi-3.7.0-h47dc5ef_1.conda
@@ -3449,7 +3461,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.7-h4c53d1a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py311h440b913_5.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - conda_source: quetz-server[6c62b1e4] @ .
+      - conda_source: quetz-server[1808e7e1] @ .
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
   build_number: 20
@@ -3802,6 +3814,14 @@ packages:
     - krb5 >=1.22.2,<1.23.0a0
   size: 1394333
   timestamp: 1786762112514
+- conda: https://conda.anaconda.org/conda-forge/linux-64/kubernetes-helm-4.3.2-hd3da7ce_0.conda
+  sha256: 9fcf43c06a569612507e8c3a9874c0743fdf6939f6466ec5889c8c03ddb72c64
+  md5: 5ebb644748e56a4ed134a9b82346367a
+  license: Apache-2.0
+  license_family: Apache
+  run_exports: {}
+  size: 16803061
+  timestamp: 1794644446986
 - conda: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.46.1-default_hbd61a6d_103.conda
   sha256: 901649b1edbe841fd4ee7e2d491a05184ed540eb01cdae506872f344babc1d28
   md5: 2362c70e7e79827c32db35547d9c179b
@@ -7359,6 +7379,16 @@ packages:
   run_exports: {}
   size: 18381
   timestamp: 1779305664461
+- conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20261122-pyh5ded981_0.conda
+  sha256: 440ff8c050e9d2382de538dc1285083137a90c97845bdcdda6636065595ce440
+  md5: 6b467455803c6dd0cf17e4975becfa04
+  depends:
+  - python >=3.11
+  - python
+  license: Apache-2.0 AND MIT
+  run_exports: {}
+  size: 27512
+  timestamp: 1795345142927
 - conda: https://conda.anaconda.org/conda-forge/noarch/types-redis-4.6.0.20241004-pyhcf101f3_2.conda
   sha256: 82a8bd5564e04dbe40f994a1c69993252ae4f9b5de05f88708d4f39f487a97d1
   md5: 42410bee91b0774af90bcaa6b652cdaf
@@ -7881,6 +7911,16 @@ packages:
     - krb5 >=1.22.2,<1.23.0a0
   size: 1199337
   timestamp: 1786762832264
+- conda: https://conda.anaconda.org/conda-forge/osx-64/kubernetes-helm-4.3.2-h34643d1_0.conda
+  sha256: fd99feeb0a8a812dfe0e71bf714db7286c2a8dd2ebb520ba8d816159365ac0dd
+  md5: c553d0dbf3f113414bad6aa7ebe39cf7
+  constrains:
+  - __osx >=10.12
+  license: Apache-2.0
+  license_family: Apache
+  run_exports: {}
+  size: 17794509
+  timestamp: 1794643808730
 - conda: https://conda.anaconda.org/conda-forge/osx-64/libabseil-20260817.0-cxx17_h76dead1_2.conda
   sha256: ee99f9a97d9c41a17f0aee5ec0454091d3a36f7a333fbc996b7a0ccc07eab4b8
   md5: 1b7f879d65ef3f7a719e4cd723483b15
@@ -9389,6 +9429,14 @@ packages:
     - krb5 >=1.22.2,<1.23.0a0
   size: 1165740
   timestamp: 1786762145768
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/kubernetes-helm-4.3.2-h4223ab3_0.conda
+  sha256: e9d856ca3ebf38512bb659755d7a54ee8efe58e9d586c4759a13a1b9e1586202
+  md5: 0d986a6841025515604758a2ede7eba5
+  license: Apache-2.0
+  license_family: Apache
+  run_exports: {}
+  size: 15948771
+  timestamp: 1794643767653
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libabseil-20260817.0-cxx17_h08226d7_2.conda
   sha256: 38aa78938c0d4e19a6fdab2b808b9a5ccc4f22902e93a4cf5d8b516fd21bdb17
   md5: 3099ca3278f83bc2de6a4e5b2f15b231
@@ -10589,7 +10637,7 @@ packages:
     - zstd >=1.5.7,<1.6.0a0
   size: 433687
   timestamp: 1786599629846
-- conda_source: quetz-server[5177b43b] @ .
+- conda_source: quetz-server[0922adf7] @ .
   variants:
     target_platform: linux-64
   depends:
@@ -10654,7 +10702,7 @@ packages:
   - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.10.2-pyh332efcf_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
   - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.48.0-pyhd8ed1ab_0.conda
-- conda_source: quetz-server[6c62b1e4] @ .
+- conda_source: quetz-server[1808e7e1] @ .
   variants:
     target_platform: osx-arm64
   depends:
@@ -10712,7 +10760,7 @@ packages:
   - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-hbeba79b_4.conda
   - conda: https://conda.anaconda.org/conda-forge/osx-arm64/uv-0.13.9-h4dbbf58_0.conda
   - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-- conda_source: quetz-server[c80f5ed8] @ .
+- conda_source: quetz-server[be51450f] @ .
   variants:
     target_platform: osx-64
   depends:

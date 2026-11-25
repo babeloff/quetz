@@ -1,0 +1,72 @@
+# tag::helm-workload[]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quetz.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ if eq .Values.mode "serve" }}1{{ else }}0{{ end }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "quetz.labels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        {{- include "quetz.labels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+      annotations:
+        checksum/config: {{ include "quetz.config" . | sha256sum }}
+    spec:
+      {{- include "quetz.pod" . | nindent 6 }}
+      containers:
+        - name: quetz
+          {{- include "quetz.container" . | nindent 10 }}
+          args: [quetz, start, /data, --host, 0.0.0.0, --port, "8000"]
+          ports:
+            - name: http
+              containerPort: 8000
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            timeoutSeconds: 10
+            periodSeconds: 10
+{{- if eq .Values.mode "migrate" }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "quetz.fullname" . }}-migrate-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        {{- include "quetz.labels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      {{- include "quetz.pod" . | nindent 6 }}
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          {{- include "quetz.container" . | nindent 10 }}
+          args: [quetz, init-db, /data, --create-deployment]
+{{- end }}
+# end::helm-workload[]
