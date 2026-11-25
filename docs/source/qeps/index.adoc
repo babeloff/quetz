@@ -10,4 +10,4 @@
 include::{site-root}/_partials/navigation.adoc[]
 
 * xref:qep-001-user-permissions.adoc[QEP 1: quetz permission design]
-* xref:qep-002-consistent-builds.adoc[QEP 2: Consistent builds]
+* xref:qep-002-consistent-builds.adoc[QEP 2: Consistent builds (implemented in 0.12.0)]

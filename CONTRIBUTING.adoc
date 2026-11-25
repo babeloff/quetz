@@ -190,9 +190,22 @@ See xref:RELEASE.adoc[Release and publish Quetz] for release artifact verificati
 == Build task reference
 
 The root `pixi.toml` defines the development and build commands.
-Executable helpers live in `pixi-scripts/` and use Python.
+Define new automation there whenever possible;
+use a subproject only when the root manifest cannot express the required build.
+Every project-owned script invoked by a Pixi manifest must live in `pixi-scripts/` and use Python or Nushell.
+All current helpers use Python.
 Bundled plugin manifests define packages and share the root tasks.
-See link:https://github.com/babeloff/quetz/blob/main/docs/source/qeps/qep-002-consistent-builds.adoc[QEP 2] for the build conventions.
+These conventions implement link:https://github.com/babeloff/quetz/blob/main/docs/source/qeps/qep-002-consistent-builds.adoc[QEP 2],
+closed in version 0.12.0.
+
+CI invokes the service and plugin tasks below.
+The development Compose stack uses the PostgreSQL readiness helper from the same directory.
+Source distributions include all `pixi-scripts/*.py` helpers through `MANIFEST.in`.
+The documentation Makefile and Windows batch launcher are retired;
+use `docs-site` and `docs-clean` instead.
+The shared site navigation contains navigation only;
+keep executable build logic in the task helpers.
+See <<migration-verification-baseline>> for the implementation checks and their limits.
 
 `pixi run --locked -e dev test-plugins` installs and tests every bundled plugin.
 It reports failure after processing all plugins.

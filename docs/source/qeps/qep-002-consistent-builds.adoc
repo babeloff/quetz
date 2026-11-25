@@ -9,60 +9,40 @@
 
 include::{site-root}/_partials/navigation.adoc[]
 
-== Requirements
+== Status
 
-Any Makefile and associated scripts should be migrated into the main pixi.toml if possible,
-in a sub-project if necessary,
-and any scripts used in any pixi.toml should be in the pixi-scripts/ directory.
-If any pixi-scripts are bash or bat files,
-they should be converted into python or nushell scripts.
+Implemented and closed in 0.12.0.
+The build task migration was committed as https://github.com/babeloff/quetz/commit/3a22050[3a22050].
+This QEP remains as the design record;
+commands,
+source references,
+and verification evidence are maintained in the link:https://github.com/babeloff/quetz/blob/main/CONTRIBUTING.adoc#build-task-reference[build task reference]
+and link:https://github.com/babeloff/quetz/blob/main/CONTRIBUTING.adoc#migration-verification-baseline[migration verification baseline].
 
-== Implementation plan
+== Build conventions
 
-* Replace the documentation Makefile and batch launcher with root Pixi tasks for building and cleaning documentation.
-* Keep executable task helpers in `pixi-scripts/` and convert the CI and development shell helpers to Python.
-* Update CI,
-container commands,
-source distribution contents,
-tests,
-and documentation to use the new tasks and paths.
-* Preserve plugin failure aggregation,
-container health checks,
-and release artifact validation.
-Verify these behaviors with isolated tests before exercising the Pixi tasks and documentation build.
+Define build and development automation in the root `pixi.toml` wherever possible.
+Use a subproject only when necessary.
+Store every project-owned script invoked by a Pixi manifest in `pixi-scripts/`.
+Use Python or Nushell for these scripts.
 
-== Implementation
+The root tasks replace the documentation Makefile and batch launcher.
+CI,
+container readiness,
+example package transfers,
+documentation,
+and release assembly use the shared Python helpers.
+Bundled plugin manifests need no separate task subprojects.
+Source distributions include the helpers.
 
-The root `pixi.toml` provides the documentation build and cleanup tasks,
-CI service and plugin tasks,
-and example package download and upload tasks.
-All task helpers live in `pixi-scripts/` as Python files.
-The plugin manifests need no separate task subprojects.
-The documentation Makefile and Windows batch launcher have been removed.
+== Verification scope
 
-CI and the development Compose stack call the same Python helpers.
-Source distributions include `pixi-scripts/*.py`.
-The site navigation contains only navigation;
-the obsolete embedded script has been removed.
-
-See link:https://github.com/babeloff/quetz/blob/main/CONTRIBUTING.adoc#build-task-reference[the build task reference] for commands and their included implementation sources.
-
-== Verification
-
-* Fourteen focused tests cover release assembly,
-plugin failure aggregation,
-service readiness and timeout logging,
-PostgreSQL command forwarding,
-documentation cleanup,
-example transfer failures,
-and the task script location convention.
-* Ruff,
-mypy,
-repository hooks,
-and Actionlint pass.
-* The documentation builds from a clean output tree;
-all 337 local links and anchors across 17 site pages resolve.
-* Python source and wheel builds pass metadata validation.
-The source archive contains all eight Python helpers and excludes the removed launchers.
-* Container service behavior is tested with mocked Podman and PostgreSQL commands.
-No live service containers are started by these regression checks.
+Fourteen focused helper and release tests passed at the implementation baseline,
+alongside lint,
+type,
+workflow,
+documentation,
+and packaging checks.
+The maintained verification baseline records the full scope and results.
+Service-helper tests use mocked Podman and PostgreSQL commands;
+they do not establish a live container startup after the Python conversion.

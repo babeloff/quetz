@@ -2,6 +2,15 @@
 :idprefix:
 :idseparator: -
 
+[[v0120]]
+== 0.12.0
+
+* Implement QEP 2 with root Pixi tasks and Python helpers in `pixi-scripts/`.
+* Replace the documentation Makefile and Windows batch launcher with Pixi tasks.
+* Convert CI and development shell helpers to Python and update container commands and source distributions.
+* Retain Apple Silicon release packages as a separate manual build.
+* Close the migration work records and consolidate build conventions and verification in the maintained documentation.
+
 [[v0111]]
 == 0.11.1
 
