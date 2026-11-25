@@ -10,7 +10,7 @@ jobs:
       matrix:
         containerfile: [Containerfile, containers/Containerfile, containers/Containerfile.jupyterhub, quetz_db_ext/Containerfile]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - name: Build with Podman
         env:
           CONTAINERFILE: ${{ matrix.containerfile }}

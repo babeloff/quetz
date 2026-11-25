@@ -27,8 +27,8 @@ jobs:
       S3_BUCKET_NAME: quetz
       QUETZ_IS_TEST: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: prefix-dev/setup-pixi@v0.9.3
+      - uses: actions/checkout@v7.0.1
+      - uses: prefix-dev/setup-pixi@v0.11.3
         with:
           pixi-version: v0.84.2
           environments: dev
@@ -53,15 +53,15 @@ jobs:
       - name: Stop services
         if: always()
         run: bash scripts/ci-services.sh stop
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v7.1.1
         with:
           files: coverage.xml
 
   test_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: prefix-dev/setup-pixi@v0.9.3
+      - uses: actions/checkout@v7.0.1
+      - uses: prefix-dev/setup-pixi@v0.11.3
         with:
           pixi-version: v0.84.2
           environments: release
