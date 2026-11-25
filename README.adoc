@@ -74,7 +74,7 @@ Download `xtensor` as test package:
 
 [source,bash]
 ----
-./download-test-package.sh
+pixi run --locked download-test-packages
 ----
 
 To upload the package, install the link:++https://github.com/mamba-org/quetz-client++[quetz-client]:

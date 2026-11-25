@@ -71,6 +71,9 @@ quetz-server = { path = "." }
 
 [tasks]
 start = "quetz run test_quetz --copy-conf ./dev_config.toml --dev --reload"
+download-test-packages = "python pixi-scripts/download_test_packages.py"
+upload-test-packages = "python pixi-scripts/upload_test_packages.py"
+dev-quetz = { cmd = "quetz", env = { QUETZ_CONFIG_FILE = "$PIXI_PROJECT_ROOT/dev_config.toml" } }
 
 [feature.dev.dependencies]
 black = "*"
@@ -94,6 +97,8 @@ pyinstrument = "*"
 xattr = "*"
 
 [feature.dev.tasks]
+ci-services = "python pixi-scripts/ci_services.py"
+test-plugins = { cmd = "python pixi-scripts/run_plugins.py", env = { QUETZ_IS_TEST = "1" } }
 test = { cmd = "pytest -v quetz/tests", env = { QUETZ_IS_TEST = "1" } }
 lint = "prek run --all-files"
 
@@ -122,8 +127,9 @@ lint = "prek run --all-files"
 asciidoctor = ">=2,<3"
 
 [feature.docs.tasks]
+docs-clean = "python pixi-scripts/clean_docs.py"
 docs = { depends-on = ["docs-site", "docs-asciidoc"] }
-docs-site = "python scripts/render_docs.py"
+docs-site = "python pixi-scripts/render_docs.py"
 docs-asciidoc = "asciidoctor --failure-level WARN -R . -D docs/build/asciidoc README.adoc CONTRIBUTING.adoc RELEASE.adoc CHANGELOG.adoc plugins/README.adoc plugins/*/README.adoc plugins/*/docs/*.adoc"
 
 [feature.release.dependencies]
@@ -134,7 +140,7 @@ wheel = "*"
 
 [feature.release.tasks]
 build-conda = "pixi publish --path . --target-dir dist/release"
-prepare-release = "python scripts/prepare_release.py"
+prepare-release = "python pixi-scripts/prepare_release.py"
 build-python = "python -m build --no-isolation --outdir dist/python"
 check-python = { cmd = "twine check dist/python/*", depends-on = ["build-python"] }
 

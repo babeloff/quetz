@@ -45,14 +45,14 @@ jobs:
             echo 'QUETZ_TEST_DATABASE=postgresql://postgres:mysecretpassword@localhost:5432/postgres' >> "$GITHUB_ENV"
           fi
       - name: Start services with Podman
-        run: bash scripts/ci-services.sh start
+        run: pixi run --locked -e dev ci-services start
       - name: Test server
         run: pixi run --locked -e dev test --cov-config=pyproject.toml --cov=quetz --cov-report=xml --capture=no
       - name: Test plugins
-        run: bash scripts/test-plugins.sh
+        run: pixi run --locked -e dev test-plugins
       - name: Stop services
         if: always()
-        run: bash scripts/ci-services.sh stop
+        run: pixi run --locked -e dev ci-services stop
       - uses: codecov/codecov-action@v7.1.1
         with:
           files: coverage.xml

@@ -7,7 +7,6 @@ include init_db.py
 include .flake8
 include .pre-commit-config.yaml
 include .readthedocs.yml
-include download-test-package.sh
 
 recursive-include quetz/migrations *.*
 recursive-include quetz/tests *.*
@@ -21,19 +20,15 @@ graft quetz/templates
 recursive-exclude plugins *.*
 recursive-exclude quetz_client *.*
 
-exclude set_env_dev.sh
-exclude test-cli-client.sh
 exclude utils/repodata_compare.py
 
 include Containerfile
 include compose.yaml
 include .containerignore
 recursive-include containers *
-recursive-include scripts *.sh *.py
+recursive-include pixi-scripts *.py
 
 recursive-include docs/source *.*
 recursive-include docs/assets *.*
-include docs/make.bat
-include docs/Makefile
 
 global-exclude *.py[cod]

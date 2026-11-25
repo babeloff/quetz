@@ -28,6 +28,8 @@ The documentation task renders the AsciiDoc site to `docs/build/html` and the
 repository AsciiDoc documents to `docs/build/asciidoc`.
 Run `pixi run -e docs docs-site` to build only the documentation site.
 Run `pixi run -e docs docs-asciidoc` to check the repository and plugin documents.
+Run `pixi run --locked -e docs docs-clean` to remove both generated documentation trees.
+These tasks replace `make html` and `make clean`.
 The site entry point is `docs/source/index.adoc`.
 Shared navigation lives in `docs/source/_partials/navigation.adoc`.
 Authenticator and hook reference pages include tagged Python source;
@@ -43,7 +45,7 @@ Read the Docs uses the same renderer with its own output directory.
 ====
 [source%collapsible,python]
 ----
-include::scripts/render_docs.py[tag=render-docs]
+include::pixi-scripts/render_docs.py[tag=render-docs]
 ----
 ====
 
@@ -91,9 +93,9 @@ For local service containers, install Podman and run:
 
 [source,bash]
 ----
-bash scripts/ci-services.sh start
+pixi run --locked -e dev ci-services start
 pixi run -e dev test
-bash scripts/ci-services.sh stop
+pixi run --locked -e dev ci-services stop
 ----
 
 The development image creates the `quetz` system account without a preset password.
@@ -103,6 +105,77 @@ The content-trust plugin retains `libmambapy` for its signing-role verification 
 These libraries are confined to that optional plugin.
 Current-repodata generation uses Rattler for package matching and preserves latest builds, dependency backfills, and legacy feature alternatives.
 The solver plugin uses the Pixi executable and retains `/api/mamba/solve` for HTTP compatibility.
+
+== Build task reference
+
+The root `pixi.toml` defines the development and build commands.
+Executable helpers live in `pixi-scripts/` and use Python.
+Bundled plugin manifests define packages and share the root tasks.
+See link:https://github.com/babeloff/quetz/blob/main/docs/source/qeps/qep-002-consistent-builds.adoc[QEP 2] for the build conventions.
+
+`pixi run --locked -e dev test-plugins` installs and tests every bundled plugin.
+It reports failure after processing all plugins.
+Plugin installation updates the workspace manifest and lockfile,
+so run this task in a disposable checkout when preserving the current environment matters.
+
+.Plugin test runner
+[source%collapsible,python]
+----
+include::pixi-scripts/run_plugins.py[tag=test-plugins]
+----
+
+`pixi run --locked -e dev ci-services start` waits for PostgreSQL and Redis health checks.
+Use `ci-services stop` after testing,
+including when tests fail.
+Both tasks require an installed Podman executable.
+
+.Integration service lifecycle
+[source%collapsible,python]
+----
+include::pixi-scripts/ci_services.py[tag=ci-services]
+----
+
+`pixi run --locked -e docs docs-clean` removes `docs/build` without touching documentation sources.
+
+.Documentation cleanup
+[source%collapsible,python]
+----
+include::pixi-scripts/clean_docs.py[tag=clean-docs]
+----
+
+`pixi run --locked download-test-packages` downloads the three xtensor examples into `xtensor/`.
+Use `--directory PATH` to choose another destination.
+`pixi run --locked upload-test-packages` uploads those examples to `channel0`.
+Set `QUETZ_API_KEY` and optionally `QUETZ_SERVER_URL` before uploading;
+use `--channel NAME` to select another channel.
+The uploader propagates HTTP errors and requires downloaded packages.
+
+.Example package download
+[source%collapsible,python]
+----
+include::pixi-scripts/download_test_packages.py[tag=download-test-packages]
+----
+
+.Example package upload
+[source%collapsible,python]
+----
+include::pixi-scripts/upload_test_packages.py[tag=upload-test-packages]
+----
+
+`pixi run --locked dev-quetz COMMAND` runs a Quetz command with `QUETZ_CONFIG_FILE` pointing to the repository's `dev_config.toml`.
+This replaces sourcing `set_env_dev.sh`.
+For example,
+run `pixi run --locked dev-quetz --help`.
+
+The development Compose stack invokes the Python PostgreSQL waiter before initializing or starting the server.
+It uses `POSTGRES_PASSWORD` and `psql` from the container environment.
+It forwards command arguments without shell splitting when given a command.
+
+.Container PostgreSQL readiness
+[source%collapsible,python]
+----
+include::pixi-scripts/wait_for_postgres.py[tag=wait-for-postgres]
+----
 
 == Pull requests
 

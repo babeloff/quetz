@@ -48,7 +48,7 @@ and platform coverage and generates `SHA256SUMS`:
 
 [source%collapsible,python]
 ----
-include::scripts/prepare_release.py[tag=prepare-release]
+include::pixi-scripts/prepare_release.py[tag=prepare-release]
 ----
 
 == Add the deferred Apple Silicon package

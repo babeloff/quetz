@@ -13,7 +13,7 @@ import zstandard
 from quetz._version import __version__
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "scripts/prepare_release.py"
+SCRIPT = ROOT / "pixi-scripts/prepare_release.py"
 
 
 def package(directory, platform):
