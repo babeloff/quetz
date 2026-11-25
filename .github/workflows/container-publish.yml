@@ -1,0 +1,33 @@
+name: build and publish OCI image
+
+on:
+  push:
+    branches: [main]
+    tags: ["**"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: docker.io/mambaorg/quetz
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with Podman
+        run: podman build -f Containerfile -t "$IMAGE_NAME:build" .
+      - name: Log in to registry with Podman
+        env:
+          REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          REGISTRY_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: printf '%s' "$REGISTRY_TOKEN" | podman login docker.io --username "$REGISTRY_USERNAME" --password-stdin
+      - name: Push image
+        run: |
+          tag=latest
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            tag="${GITHUB_REF#refs/tags/}"
+          fi
+          podman tag "$IMAGE_NAME:build" "$IMAGE_NAME:$tag"
+          podman push --digestfile image-digest.txt "$IMAGE_NAME:$tag"
+          cat image-digest.txt
+      - name: Log out
+        if: always()
+        run: podman logout docker.io

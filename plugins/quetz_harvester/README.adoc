@@ -1,0 +1,29 @@
+= quetz_harvester plugin
+:idprefix:
+:idseparator: -
+
+This is a plugin to use with the link:++https://github.com/mamba-org/quetz++[quetz] package server that allows to extract additional metadata from the packages, using the link:++https://github.com/regro/libcflib++[libcflib] harvester.
+
+== Installing
+
+To install use:
+
+[source,bash]
+----
+pixi run -e dev quetz plugin install plugins/quetz_harvester
+----
+
+== Using
+
+After installing the package run the `harvest` job using the standard /jobs endpoint in quetz:
+
+[source,bash]
+----
+QUETZ_API_KEY=... # setup you api key retrieved through the quetz fronted
+curl -X POST localhost:8000/api/jobs  -d '{"items_spec": "*", "manifest": "quetz-harvester:harvest"}' -H "X-api-key: ${QUETZ_API_KEY}"
+----
+
+it will run the `harvest` job on ALL package files on the server.
+
+Each package will have an additional file added to the packagestore (`channel/metadata/subdir/package-name.json`).
+You can access that file from the URL: `http://quetz/channels/channel/metadata/subdir/package-name.json`.

@@ -17,7 +17,7 @@ def post_package_indexing(tempdir: Path, channel_name, subdirs, files, packages)
             raise RuntimeError(
                 "zchunk does not seem to be installed, "
                 "you can install it with:\n"
-                "mamba install zchunk -c conda-forge"
+                "pixi add zchunk"
             )
         except subprocess.CalledProcessError:
             raise RuntimeError("Error calling zck on repodata.")

@@ -1,0 +1,460 @@
+= Changelog
+:idprefix:
+:idseparator: -
+
+[[v0110]]
+== 0.11.0
+
+=== Maintenance and tooling
+
+* Manage builds, development, tests, documentation, releases, and plugin installation with Pixi.
+* Use Podman for OCI image builds, publication, Compose services, and CI service containers.
+* Replace Mamba-based solving with Pixi and Conda-based current-repodata matching with Rattler.
+* Convert repository Markdown documentation to AsciiDoc.
+
+[[v0104]]
+== 0.10.4
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.10.3...1a42ed273aa5fd6746df674c9542e539ff32f9a3++[Full Changelog])
+
+=== Bugs fixed
+
+* Address issues of missing `bucket_name` in `s3fs` paths link:++https://github.com/mamba-org/quetz/pull/673++[#673] (link:++https://github.com/RobinHolzingerQC++[@RobinHolzingerQC])
+* Pin `typer` to address issues in argument defaults link:++https://github.com/mamba-org/quetz/pull/672++[#672] (link:++https://github.com/RobinHolzingerQC++[@RobinHolzingerQC])
+
+=== Maintenance and upkeep improvements
+
+* Fix linting link:++https://github.com/mamba-org/quetz/pull/678++[#678] (link:++https://github.com/RobinHolzingerQC++[@RobinHolzingerQC])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-11-22&to=2023-12-04&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-11-22..2023-12-04&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3ARobinHolzingerQC+updated%3A2023-11-22..2023-12-04&type=Issues++[@RobinHolzingerQC]
+
+[[v0103]]
+== 0.10.3
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.10.2...cbc3914575bf05050c97c241f003d1712f85043e++[Full Changelog])
+
+=== Bugs fixed
+
+* Ignore missing `info/files` file link:++https://github.com/mamba-org/quetz/pull/671++[#671] (link:++https://github.com/wolfv++[@wolfv])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-09-28&to=2023-11-22&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2023-09-28..2023-11-22&type=Issues++[@wolfv]
+
+[[v0102]]
+== 0.10.2
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.10.1...3cbd27a2356c9ff07fc80fef5888acb71fc2d7f7++[Full Changelog])
+
+=== Bugs fixed
+
+* Fix set user roles when role is None link:++https://github.com/mamba-org/quetz/pull/669++[#669] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-09-28&to=2023-09-28&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-09-28..2023-09-28&type=Issues++[@janjagusch]
+
+[[v0101]]
+== 0.10.1
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.10.0...ef6836a7c887dc97a89d8b5cce4472a03740b692++[Full Changelog])
+
+=== Bugs fixed
+
+* Fix oauth2 revoke functionality link:++https://github.com/mamba-org/quetz/pull/665++[#665] (link:++https://github.com/wolfv++[@wolfv])
+* Fix docs rest model link:++https://github.com/mamba-org/quetz/pull/661++[#661] (link:++https://github.com/mbestipa++[@mbestipa])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-09-11&to=2023-09-28&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-09-11..2023-09-28&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ambestipa+updated%3A2023-09-11..2023-09-28&type=Issues++[@mbestipa] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2023-09-11..2023-09-28&type=Issues++[@wolfv]
+
+[[v0100]]
+== 0.10.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.9.2...0854d442d1b20b7eb90e023eef27527b722fbcc6++[Full Changelog])
+
+=== Enhancements made
+
+* Fix postgres pool size link:++https://github.com/mamba-org/quetz/pull/657++[#657] (link:++https://github.com/beenje++[@beenje])
+* Migrate to Pydantic v2 link:++https://github.com/mamba-org/quetz/pull/656++[#656] (link:++https://github.com/beenje++[@beenje])
+
+=== Bugs fixed
+
+* Fix double upload bug and improve test link:++https://github.com/mamba-org/quetz/pull/663++[#663] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+* Add migration script for scoped API keys link:++https://github.com/mamba-org/quetz/pull/655++[#655] (link:++https://github.com/beenje++[@beenje])
+* Fix crash when uploading a package through scoped API key link:++https://github.com/mamba-org/quetz/pull/647++[#647] (link:++https://github.com/gabm++[@gabm])
+* Consider packages.conda for index update and channel mirroring link:++https://github.com/mamba-org/quetz/pull/638++[#638] (link:++https://github.com/YYYasin19++[@YYYasin19])
+
+=== Maintenance and upkeep improvements
+
+* Pin pydantic++<++2 link:++https://github.com/mamba-org/quetz/pull/653++[#653] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+* Make upload routes consistent with each other link:++https://github.com/mamba-org/quetz/pull/635++[#635] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-06-21&to=2023-09-11&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AAndreasAlbertQC+updated%3A2023-06-21..2023-09-11&type=Issues++[@AndreasAlbertQC] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Abeenje+updated%3A2023-06-21..2023-09-11&type=Issues++[@beenje] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-06-21..2023-09-11&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Agabm+updated%3A2023-06-21..2023-09-11&type=Issues++[@gabm] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-06-21..2023-09-11&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2023-06-21..2023-09-11&type=Issues++[@wolfv] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AYYYasin19+updated%3A2023-06-21..2023-09-11&type=Issues++[@YYYasin19]
+
+[[v092]]
+== 0.9.2
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.9.1...efd519fd840304fb73fe6fd31ee4ae7f010ab1a2++[Full Changelog])
+
+=== Bugs fixed
+
+* Remove DB dependency for health endpoint link:++https://github.com/mamba-org/quetz/pull/652++[#652] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+* Do not pass pooling arguments to sqlite link:++https://github.com/mamba-org/quetz/pull/641++[#641] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+
+=== Maintenance and upkeep improvements
+
+* Use PEP-593 Annotated for options and arguments in CLI commands link:++https://github.com/mamba-org/quetz/pull/644++[#644] (link:++https://github.com/rominf++[@rominf])
+* Bump pyright-python version link:++https://github.com/mamba-org/quetz/pull/643++[#643] (link:++https://github.com/rominf++[@rominf])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-06-20&to=2023-06-21&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AAndreasAlbertQC+updated%3A2023-06-20..2023-06-21&type=Issues++[@AndreasAlbertQC] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-06-20..2023-06-21&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Arominf+updated%3A2023-06-20..2023-06-21&type=Issues++[@rominf]
+
+[[v091]]
+== 0.9.1
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.9.0...13f588cc16560c78927e4b2406a77958a62d5ca6++[Full Changelog])
+
+=== Bugs fixed
+
+* Fix event loop errors link:++https://github.com/mamba-org/quetz/pull/650++[#650] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Maintenance and upkeep improvements
+
+* Checkout source code from fork link:++https://github.com/mamba-org/quetz/pull/651++[#651] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-06-05&to=2023-06-20&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-06-05..2023-06-20&type=Issues++[@janjagusch]
+
+[[v090]]
+== 0.9.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.8.0...935be5b02961e952396ca1fac20e073ec8907062++[Full Changelog])
+
+=== Enhancements made
+
+* Add async friendly upload link:++https://github.com/mamba-org/quetz/pull/626++[#626] (link:++https://github.com/ivergara++[@ivergara])
+
+=== Maintenance and upkeep improvements
+
+* Run CI on main branch link:++https://github.com/mamba-org/quetz/pull/637++[#637] (link:++https://github.com/janjagusch++[@janjagusch])
+* Add GCS env vars link:++https://github.com/mamba-org/quetz/pull/636++[#636] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-06-01&to=2023-06-05&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-06-01..2023-06-05&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Aivergara+updated%3A2023-06-01..2023-06-05&type=Issues++[@ivergara] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-06-01..2023-06-05&type=Issues++[@janjagusch]
+
+[[v080]]
+== 0.8.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.7.0...b1ac607ed0900b6242519cd452e92539f83a6721++[Full Changelog])
+
+=== Enhancements made
+
+* Sanitize DB urls before printing link:++https://github.com/mamba-org/quetz/pull/633++[#633] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+* Make sqlalchemy pool settings configurable link:++https://github.com/mamba-org/quetz/pull/632++[#632] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+* Avoid exposing the Postgres credentials link:++https://github.com/mamba-org/quetz/pull/628++[#628] (link:++https://github.com/sbivol++[@sbivol])
+* Add sampler profiling link:++https://github.com/mamba-org/quetz/pull/623++[#623] (link:++https://github.com/ivergara++[@ivergara])
+
+=== Maintenance and upkeep improvements
+
+* Fix pre-commit / micromamba interplay link:++https://github.com/mamba-org/quetz/pull/634++[#634] (link:++https://github.com/AndreasAlbertQC++[@AndreasAlbertQC])
+* Add osx-arm64 version for testing on newer apple devices link:++https://github.com/mamba-org/quetz/pull/631++[#631] (link:++https://github.com/YYYasin19++[@YYYasin19])
+* Migrate to setup-micromamba link:++https://github.com/mamba-org/quetz/pull/627++[#627] (link:++https://github.com/pavelzw++[@pavelzw])
+* Move configurations to `pyproject.toml` link:++https://github.com/mamba-org/quetz/pull/624++[#624] (link:++https://github.com/SauravMaheshkar++[@SauravMaheshkar])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-04-11&to=2023-06-01&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AAndreasAlbertQC+updated%3A2023-04-11..2023-06-01&type=Issues++[@AndreasAlbertQC] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-04-11..2023-06-01&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Aivergara+updated%3A2023-04-11..2023-06-01&type=Issues++[@ivergara] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-04-11..2023-06-01&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AmartinRenou+updated%3A2023-04-11..2023-06-01&type=Issues++[@martinRenou] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Apavelzw+updated%3A2023-04-11..2023-06-01&type=Issues++[@pavelzw] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3ASauravMaheshkar+updated%3A2023-04-11..2023-06-01&type=Issues++[@SauravMaheshkar] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Asbivol+updated%3A2023-04-11..2023-06-01&type=Issues++[@sbivol] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AYYYasin19+updated%3A2023-04-11..2023-06-01&type=Issues++[@YYYasin19]
+
+[[v070]]
+== 0.7.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.6.3...bc0ac65796d14083ae587eba103d6d60250759ff++[Full Changelog])
+
+=== Enhancements made
+
+* Add endpoints for health checks link:++https://github.com/mamba-org/quetz/pull/622++[#622] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Maintenance and upkeep improvements
+
+* Fix pyright errors link:++https://github.com/mamba-org/quetz/pull/621++[#621] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-04-05&to=2023-04-11&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-04-05..2023-04-11&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-04-05..2023-04-11&type=Issues++[@janjagusch]
+
+[[v063]]
+== 0.6.3
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.6.2...794eccb91e775e3ff3466839dbfe65a226926615++[Full Changelog])
+
+=== Bugs fixed
+
+* Cast starlette URL to str link:++https://github.com/mamba-org/quetz/pull/618++[#618] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-02-20&to=2023-04-05&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-02-20..2023-04-05&type=Issues++[@janjagusch]
+
+[[v062]]
+== 0.6.2
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.6.1...daa8d07d62703601ca236fe4bfaaa23132f781dd++[Full Changelog])
+
+=== Bugs fixed
+
+* Fix unbound variables link:++https://github.com/mamba-org/quetz/pull/609++[#609] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Maintenance and upkeep improvements
+
+* Enable pyright reportMissingImports link:++https://github.com/mamba-org/quetz/pull/615++[#615] (link:++https://github.com/janjagusch++[@janjagusch])
+* Enable pyright reportMissingModuleSource link:++https://github.com/mamba-org/quetz/pull/614++[#614] (link:++https://github.com/janjagusch++[@janjagusch])
+* Enable pyright reportOptionalMemberAccess link:++https://github.com/mamba-org/quetz/pull/613++[#613] (link:++https://github.com/janjagusch++[@janjagusch])
+* Enable pyright reportOptionalOperand link:++https://github.com/mamba-org/quetz/pull/612++[#612] (link:++https://github.com/janjagusch++[@janjagusch])
+* Enable pyright reportOptionalSubscript link:++https://github.com/mamba-org/quetz/pull/611++[#611] (link:++https://github.com/janjagusch++[@janjagusch])
+* Enable pyright reportPrivateImportUsage link:++https://github.com/mamba-org/quetz/pull/610++[#610] (link:++https://github.com/janjagusch++[@janjagusch])
+* Add prettier pre-commit hook link:++https://github.com/mamba-org/quetz/pull/608++[#608] (link:++https://github.com/janjagusch++[@janjagusch])
+* Add pyright pre-commit hook link:++https://github.com/mamba-org/quetz/pull/607++[#607] (link:++https://github.com/janjagusch++[@janjagusch])
+* Try to fix ReadTheDocs 2 link:++https://github.com/mamba-org/quetz/pull/605++[#605] (link:++https://github.com/janjagusch++[@janjagusch])
+* Fix ReadTheDocs link:++https://github.com/mamba-org/quetz/pull/604++[#604] (link:++https://github.com/janjagusch++[@janjagusch])
+* Move SQL authenticator plugin to own repo link:++https://github.com/mamba-org/quetz/pull/593++[#593] (link:++https://github.com/simonbohnen++[@simonbohnen])
+* Remove old `quetz-client` link:++https://github.com/mamba-org/quetz/pull/589++[#589] (link:++https://github.com/simonbohnen++[@simonbohnen])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-02-16&to=2023-02-20&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2023-02-16..2023-02-20&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2023-02-16..2023-02-20&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Asimonbohnen+updated%3A2023-02-16..2023-02-20&type=Issues++[@simonbohnen]
+
+[[v061]]
+== 0.6.1
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.6.0...ff885bc0de3505329a6f15adc9c51e112e50c887++[Full Changelog])
+
+=== Maintenance and upkeep improvements
+
+* Remove xattr as hard dependency link:++https://github.com/mamba-org/quetz/pull/602++[#602] (link:++https://github.com/SimonBohnenQC++[@SimonBohnenQC])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2023-02-16&to=2023-02-16&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3ASimonBohnenQC+updated%3A2023-02-16..2023-02-16&type=Issues++[@SimonBohnenQC]
+
+[[v060]]
+== 0.6.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.5.0...822c9244f13c16d84ff44bd6492a6c2f48e9b4aa++[Full Changelog])
+
+=== Enhancements made
+
+* Remove frontend link:++https://github.com/mamba-org/quetz/pull/565++[#565] (link:++https://github.com/wolfv++[@wolfv])
+
+=== Bugs fixed
+
+* Fix upload endpoint link:++https://github.com/mamba-org/quetz/pull/597++[#597] (link:++https://github.com/simonbohnen++[@simonbohnen])
+* Fix upload endpoint link:++https://github.com/mamba-org/quetz/pull/594++[#594] (link:++https://github.com/simonbohnen++[@simonbohnen])
+
+=== Maintenance and upkeep improvements
+
+* Update check-release action to v2 link:++https://github.com/mamba-org/quetz/pull/601++[#601] (link:++https://github.com/janjagusch++[@janjagusch])
+* Make `quetz` compatible with SQLAlchemy 2.0 link:++https://github.com/mamba-org/quetz/pull/598++[#598] (link:++https://github.com/simonbohnen++[@simonbohnen])
+* Update pre-commit versions link:++https://github.com/mamba-org/quetz/pull/592++[#592] (link:++https://github.com/wolfv++[@wolfv])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-12-16&to=2023-02-16&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2022-12-16..2023-02-16&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2022-12-16..2023-02-16&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Asimonbohnen+updated%3A2022-12-16..2023-02-16&type=Issues++[@simonbohnen] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2022-12-16..2023-02-16&type=Issues++[@wolfv]
+
+[[v050]]
+== 0.5.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.4.4...7f77638aa4b94d6eeb3a18158ee6f9184061ef74++[Full Changelog])
+
+=== Enhancements made
+
+* no file or directory mandatory link:++https://github.com/mamba-org/quetz/pull/558++[#558] (link:++https://github.com/brichet++[@brichet])
+* Add an API for paginated package versions link:++https://github.com/mamba-org/quetz/pull/556++[#556] (link:++https://github.com/brichet++[@brichet])
+* Implement multiple languages support for the TermsOfServices link:++https://github.com/mamba-org/quetz/pull/552++[#552] (link:++https://github.com/martinRenou++[@martinRenou])
+* Adds a new endpoint to check if the user already signed the TOS link:++https://github.com/mamba-org/quetz/pull/548++[#548] (link:++https://github.com/hbcarlos++[@hbcarlos])
+* Fix / consistent usage of f-strings link:++https://github.com/mamba-org/quetz/pull/538++[#538] (link:++https://github.com/riccardoporreca++[@riccardoporreca])
+* Add upload endpoint link:++https://github.com/mamba-org/quetz/pull/533++[#533] (link:++https://github.com/atrawog++[@atrawog])
+* Add SQL authenticator link:++https://github.com/mamba-org/quetz/pull/508++[#508] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Bugs fixed
+
+* Remove `httpx` pin, fix tests, & test plugins individually link:++https://github.com/mamba-org/quetz/pull/574++[#574] (link:++https://github.com/simonbohnen++[@simonbohnen])
+* Fix sqlauth error parsing link:++https://github.com/mamba-org/quetz/pull/569++[#569] (link:++https://github.com/simonbohnen++[@simonbohnen])
+* Fix update route in SQL Authenticator link:++https://github.com/mamba-org/quetz/pull/568++[#568] (link:++https://github.com/simonbohnen++[@simonbohnen])
+* fix OpenAPI spec. by allowing "nullable" values link:++https://github.com/mamba-org/quetz/pull/564++[#564] (link:++https://github.com/kuepe-sl++[@kuepe-sl])
+* fix package_versions.version_order database field after package version deletion link:++https://github.com/mamba-org/quetz/pull/562++[#562] (link:++https://github.com/kuepe-sl++[@kuepe-sl])
+* fix path in HTML templates link:++https://github.com/mamba-org/quetz/pull/561++[#561] (link:++https://github.com/kuepe-sl++[@kuepe-sl])
+* Fixes CI link:++https://github.com/mamba-org/quetz/pull/559++[#559] (link:++https://github.com/hbcarlos++[@hbcarlos])
+* Fix/several typo errors link:++https://github.com/mamba-org/quetz/pull/557++[#557] (link:++https://github.com/brichet++[@brichet])
+* Fixes issues and tests on indexes link:++https://github.com/mamba-org/quetz/pull/555++[#555] (link:++https://github.com/brichet++[@brichet])
+* Remove an uploaded package whose filename does not match the package name link:++https://github.com/mamba-org/quetz/pull/554++[#554] (link:++https://github.com/brichet++[@brichet])
+* Remove package from repodata.json link:++https://github.com/mamba-org/quetz/pull/551++[#551] (link:++https://github.com/brichet++[@brichet])
+* channels with dots in their name cause a crash in indexing link:++https://github.com/mamba-org/quetz/pull/541++[#541] (link:++https://github.com/gabm++[@gabm])
+
+=== Maintenance and upkeep improvements
+
+* Fixes CI link:++https://github.com/mamba-org/quetz/pull/559++[#559] (link:++https://github.com/hbcarlos++[@hbcarlos])
+* Fixes issues and tests on indexes link:++https://github.com/mamba-org/quetz/pull/555++[#555] (link:++https://github.com/brichet++[@brichet])
+
+=== Other merged PRs
+
+* Add docker badge to README link:++https://github.com/mamba-org/quetz/pull/547++[#547] (link:++https://github.com/dhirschfeld++[@dhirschfeld])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-05-19&to=2022-12-16&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Aatrawog+updated%3A2022-05-19..2022-12-16&type=Issues++[@atrawog] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Abaszalmstra+updated%3A2022-05-19..2022-12-16&type=Issues++[@baszalmstra] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Abrichet+updated%3A2022-05-19..2022-12-16&type=Issues++[@brichet] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2022-05-19..2022-12-16&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Adhirschfeld+updated%3A2022-05-19..2022-12-16&type=Issues++[@dhirschfeld] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Agabm+updated%3A2022-05-19..2022-12-16&type=Issues++[@gabm] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ahbcarlos+updated%3A2022-05-19..2022-12-16&type=Issues++[@hbcarlos] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2022-05-19..2022-12-16&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Akuepe-sl+updated%3A2022-05-19..2022-12-16&type=Issues++[@kuepe-sl] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3AmartinRenou+updated%3A2022-05-19..2022-12-16&type=Issues++[@martinRenou] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ariccardoporreca+updated%3A2022-05-19..2022-12-16&type=Issues++[@riccardoporreca] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Asimonbohnen+updated%3A2022-05-19..2022-12-16&type=Issues++[@simonbohnen] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2022-05-19..2022-12-16&type=Issues++[@wolfv]
+
+[[v044]]
+== 0.4.4
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.4.3...fb4bc9049dfd2de0233d8ae61dd5962e7e2b616e++[Full Changelog])
+
+=== Enhancements made
+
+* improve logging link:++https://github.com/mamba-org/quetz/pull/534++[#534] (link:++https://github.com/wolfv++[@wolfv])
+* Log post_index_creation exceptions link:++https://github.com/mamba-org/quetz/pull/532++[#532] (link:++https://github.com/atrawog++[@atrawog])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-05-11&to=2022-05-19&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Aatrawog+updated%3A2022-05-11..2022-05-19&type=Issues++[@atrawog] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2022-05-11..2022-05-19&type=Issues++[@wolfv]
+
+[[v043]]
+== 0.4.3
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.4.2...42f9b9dca2f37058bc193fed890cd9524117576f++[Full Changelog])
+
+=== Enhancements made
+
+* allow upload usage without conda-verify installed link:++https://github.com/mamba-org/quetz/pull/524++[#524] (link:++https://github.com/wolfv++[@wolfv])
+* log errors of background tasks link:++https://github.com/mamba-org/quetz/pull/523++[#523] (link:++https://github.com/wolfv++[@wolfv])
+
+=== Bugs fixed
+
+* fix compatibility with latest starlette link:++https://github.com/mamba-org/quetz/pull/530++[#530] (link:++https://github.com/wolfv++[@wolfv])
+* fix proxy channels noarch and gzip repodata link:++https://github.com/mamba-org/quetz/pull/529++[#529] (link:++https://github.com/wolfv++[@wolfv])
+* Fix PAM authentication log message link:++https://github.com/mamba-org/quetz/pull/526++[#526] (link:++https://github.com/riccardoporreca++[@riccardoporreca])
+* fix mamba 0.23.0 compat link:++https://github.com/mamba-org/quetz/pull/525++[#525] (link:++https://github.com/wolfv++[@wolfv])
+* Use infodata++[++'size'++]++ for s3fs link:++https://github.com/mamba-org/quetz/pull/521++[#521] (link:++https://github.com/atrawog++[@atrawog])
+
+=== Maintenance and upkeep improvements
+
+* Move httpx as dependency link:++https://github.com/mamba-org/quetz/pull/507++[#507] (link:++https://github.com/fcollonval++[@fcollonval])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-04-07&to=2022-05-11&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Aatrawog+updated%3A2022-04-07..2022-05-11&type=Issues++[@atrawog] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2022-04-07..2022-05-11&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Afcollonval+updated%3A2022-04-07..2022-05-11&type=Issues++[@fcollonval] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ariccardoporreca+updated%3A2022-04-07..2022-05-11&type=Issues++[@riccardoporreca] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2022-04-07..2022-05-11&type=Issues++[@wolfv]
+
+[[v042]]
+== 0.4.2
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.4.1...4c65023b11c1ee1bf4c3351429c9cb365e10b6ba++[Full Changelog])
+
+=== Bugs fixed
+
+* Fix gcs region config entry link:++https://github.com/mamba-org/quetz/pull/517++[#517] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-04-06&to=2022-04-06&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2022-04-06..2022-04-06&type=Issues++[@janjagusch]
+
+[[v041]]
+== 0.4.1
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.4.0...bd2d1fc0a8c99d90662645b9bf485f940ae06e8a++[Full Changelog])
+
+=== Enhancements made
+
+* Make GCS bucket location configurable link:++https://github.com/mamba-org/quetz/pull/512++[#512] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Maintenance and upkeep improvements
+
+* Fix CI link:++https://github.com/mamba-org/quetz/pull/513++[#513] (link:++https://github.com/janjagusch++[@janjagusch])
+* small test refactor, skip harvester tests on python 3.10 link:++https://github.com/mamba-org/quetz/pull/505++[#505] (link:++https://github.com/wolfv++[@wolfv])
+* Unpin h2 link:++https://github.com/mamba-org/quetz/pull/500++[#500] (link:++https://github.com/janjagusch++[@janjagusch])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-03-14&to=2022-04-06&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2022-03-14..2022-04-06&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2022-03-14..2022-04-06&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2022-03-14..2022-04-06&type=Issues++[@wolfv]
+
+[[v040]]
+== 0.4.0
+
+(link:++https://github.com/mamba-org/quetz/compare/v0.3.0...5f2832c0b39ef56c44c17a0460bc876ae350fae8++[Full Changelog])
+
+=== Enhancements made
+
+* update all js link:++https://github.com/mamba-org/quetz/pull/501++[#501] (link:++https://github.com/wolfv++[@wolfv])
+* attempt to fix CI link:++https://github.com/mamba-org/quetz/pull/497++[#497] (link:++https://github.com/wolfv++[@wolfv])
+* Allow deleting channel members and changing role of existing members link:++https://github.com/mamba-org/quetz/pull/495++[#495] (link:++https://github.com/janjagusch++[@janjagusch])
+* Bump url-parse from 1.4.7 to 1.5.10 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/491++[#491] (link:++https://github.com/dependabot++[@dependabot])
+* Make cache timeout for GCS configurable link:++https://github.com/mamba-org/quetz/pull/490++[#490] (link:++https://github.com/SophieHallstedtQC++[@SophieHallstedtQC])
+* Bump follow-redirects from 1.11.0 to 1.14.8 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/487++[#487] (link:++https://github.com/dependabot++[@dependabot])
+* Bump ajv from 6.12.2 to 6.12.6 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/486++[#486] (link:++https://github.com/dependabot++[@dependabot])
+* Bump node-sass from 4.14.1 to 7.0.0 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/485++[#485] (link:++https://github.com/dependabot++[@dependabot])
+* Bump ssri from 6.0.1 to 6.0.2 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/484++[#484] (link:++https://github.com/dependabot++[@dependabot])
+* Bump postcss from 7.0.32 to 7.0.39 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/482++[#482] (link:++https://github.com/dependabot++[@dependabot])
+
+=== Bugs fixed
+
+* make mamba solver work with latest mamba release link:++https://github.com/mamba-org/quetz/pull/496++[#496] (link:++https://github.com/wolfv++[@wolfv])
+
+=== Maintenance and upkeep improvements
+
+* fix some pytest and sqlalchemy warnings link:++https://github.com/mamba-org/quetz/pull/502++[#502] (link:++https://github.com/wolfv++[@wolfv])
+* update all js link:++https://github.com/mamba-org/quetz/pull/501++[#501] (link:++https://github.com/wolfv++[@wolfv])
+
+=== Other merged PRs
+
+* Bump path-parse from 1.0.6 to 1.0.7 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/498++[#498] (link:++https://github.com/dependabot++[@dependabot])
+* Bump lodash from 4.17.19 to 4.17.21 in /quetz_frontend link:++https://github.com/mamba-org/quetz/pull/483++[#483] (link:++https://github.com/dependabot++[@dependabot])
+
+=== Contributors to this release
+
+(link:++https://github.com/mamba-org/quetz/graphs/contributors?from=2022-02-04&to=2022-03-14&type=c++[GitHub contributors page for this release])
+
+link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Acodecov-commenter+updated%3A2022-02-04..2022-03-14&type=Issues++[@codecov-commenter] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Adependabot+updated%3A2022-02-04..2022-03-14&type=Issues++[@dependabot] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Ajanjagusch+updated%3A2022-02-04..2022-03-14&type=Issues++[@janjagusch] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3ASophieHallstedtQC+updated%3A2022-02-04..2022-03-14&type=Issues++[@SophieHallstedtQC] ++|++ link:++https://github.com/search?q=repo%3Amamba-org%2Fquetz+involves%3Awolfv+updated%3A2022-02-04..2022-03-14&type=Issues++[@wolfv]

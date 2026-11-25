@@ -1,0 +1,7 @@
+= Quetz plugins
+:idprefix:
+:idseparator: -
+
+Quetz plugins extend the functionality of quetz server by implementing hook functions that are called when requests are handled.
+
+A list of possible hooks is in the link:../quetz/hooks.py[`hooks.py`] file.

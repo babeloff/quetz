@@ -1,0 +1,90 @@
+= Pixi and Podman migration
+
+== Plan
+
+Use `pixi.toml` and `pixi.lock` as the maintained environment definitions.
+Replace package-manager subprocesses in plugin installation and solving with Pixi.
+Give bundled plugins Pixi build manifests and keep their existing entry points.
+Preserve the solver HTTP endpoint and explicit-spec response format.
+Replace the current-repodata plugin's Conda indexer dependency with Rattler matching.
+Keep latest builds,
+dependency backfills,
+featureless alternatives,
+and legacy archive hashes.
+Run system-language pre-commit-compatible hooks with `prek` so hook setup does not create installer-managed Python environments.
+Build Python distributions without an isolated environment installer.
+Replace image recipes and Compose paths with Containerfiles and Podman tooling.
+Start CI service containers explicitly with Podman.
+Update hosted documentation and release checks to use the same locked environments.
+
+== Verification
+
+Add subprocess-contract tests for plugin installation and solving before changing runtime code.
+Run the server and plugin tests, documentation build, package builds, and lint checks available locally.
+Exercise Podman image builds and Compose configuration when the host supports them.
+Audit remaining installer references and record library dependencies that implement package formats or signing rather than environment management.
+
+== Results
+
+The server regression suite passed with 884 tests and 23 skips.
+The final CLI suite passed with 36 tests.
+The solver plugin passed its unit tests and real HTTP endpoint test.
+The optional content-trust plugin passed 35 tests with its existing signing APIs.
+The bundled plugin suites passed with 273 tests and one explicitly skipped harvester test.
+All bundled plugins resolved for Linux,
+Intel macOS,
+and Apple Silicon.
+The new current-repodata tests cover version selection,
+dependency backfills,
+feature variants,
+archive preference,
+and metadata preservation.
+
+Ruff,
+formatting,
+and mypy passed using Pixi-managed tools and isolated stub dependencies.
+The Sphinx documentation and Python distribution builds passed.
+Production and development images built with Podman.
+The production image served its readiness endpoint with HTTP status 200.
+Podman Compose validated the development service configuration.
+
+The content-trust plugin retains `libmambapy` and `conda-content-trust` as protocol libraries.
+No package-management subprocess uses those libraries.
+The root workspace and isolated bundled-plugin workspace contain no `pip`,
+`conda`,
+`mamba`,
+or `micromamba` package-manager packages.
+Historical changelog entries and package-format references are preserved.
+
+== AsciiDoc and 0.11.0 follow-up
+
+Convert all maintained Markdown sources to AsciiDoc,
+including the historical changelog and plugin READMEs.
+Preserve code blocks,
+tables,
+images,
+links,
+and section references.
+Update source-package inclusion and the package description's content type.
+Render converted documents as part of the Pixi documentation checks.
+Keep the runtime version,
+Pixi package version,
+version-bump configuration,
+Sphinx release,
+and lockfile aligned at 0.11.0.
+Check local link targets and rendered anchors,
+render the documentation without warnings,
+and build the Python and conda packages.
+
+The follow-up converted all 16 maintained Markdown files.
+All documents rendered without Asciidoctor warnings.
+The conversion preserved all 53 code blocks and all external link targets.
+Local document links,
+section anchors,
+and images passed validation.
+The Sphinx site,
+Python source distribution,
+wheel,
+and Pixi conda package built successfully at 0.11.0.
+The PyPI description uses the AsciiDoc source as `text/plain`,
+since PyPI does not render AsciiDoc.

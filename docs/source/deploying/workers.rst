@@ -1,12 +1,12 @@
 .. _task_workers:
 
 Task Workers
-=============
+============
 
 Quetz offers 3 types of backends for task workers. Each of them is explained below.
 
 Thread
------------
+------
 
 Thread workers process tasks in a separate thread. This functionality is in-built into FastAPI using
 `BackgroundTasks`_.
@@ -15,14 +15,14 @@ Thread workers process tasks in a separate thread. This functionality is in-buil
 
 
 Subprocess
------------
+----------
 
 Subprocess workers start in a separate process and are implemented through ``ProcessPoolExecutor`` of the
 ``concurrent.futures`` module. Once again, this is shipped as a part of Quetz.
 
 
 Redis
------------
+-----
 
 For advanced use-cases, Quetz also offers the ability to use `redis-queue`_ to manage jobs and run them on
 multiple processes or even multiple servers.
@@ -36,14 +36,14 @@ Setting up ``redis``
 
 Make sure that ``redis`` is installed. There are multiple ways to do this. One can compile it from source,
 use a package manager for your distribution (such as ``brew`` for MacOS, ``apt-get`` for Debian/Ubuntu) or use a
-Docker `redis image`_.
-(``docker pull redis`` if you have docker installed).
+Redis `OCI image`_.
+(``podman pull docker.io/library/redis:7`` if you have Podman installed).
 
-.. _redis image: https://hub.docker.com/_/redis/
+.. _OCI image: https://hub.docker.com/_/redis/
 
 Once ``redis`` is installed, it needs to be started. This is as simple as executing the command ``redis-server`` on a
 terminal.
-(or can be run in a container through ``docker run -p 6379:6379 redis``)
+(or can be run in a container through ``podman run -p 127.0.0.1:6379:6379 docker.io/library/redis:7``)
 
 We also need to install `redis-py`_ - the python client for Redis.
 

@@ -1,17 +1,25 @@
-# Quetz Content Trust
+Quetz content trust testing
+===========================
 
-## Testing
+Install and test the plugin from the repository root::
 
-Few scripts are provided to perform a manual integration test of package signing.
+   pixi run -e dev quetz plugin install plugins/quetz_content_trust
+   pixi run -e dev pytest plugins/quetz_content_trust
 
-This is intended to be used by channels owners/maintainers to get familiar with the workflow of generating TUF roles (delegations, etc.) and push them on a Quetz server.
+The tests exercise role validation and signing using the plugin's verification
+libraries.
+Pixi does not expose the legacy experimental client artifact-verification
+command, so installation with Pixi alone does not verify that protocol.
 
-For that, simply run the 2 following commands from your quetz source directory:
-- `quetz run test_quetz --copy-conf ./dev_config.toml --dev --reload --delete` to get an up and running server
-- `python plugins/quetz_content_trust/docs/test_script.py` to generate TUF roles, push them on the server but also push an empty `test-package` package
+For a manual server test, start a deployment::
 
-then just test from client side: `micromamba create -n foo -c http://127.0.0.1:8000/get/channel0 test-package --no-rc -y -vvv --repodata-ttl=0 --experimental --verify-artifacts`
+   pixi run -e dev quetz run test_quetz --copy-conf ./dev_config.toml --dev --reload --delete
 
-You can also simulate invalid signatures/role metadata running:
-- `python plugins/quetz_content_trust/docs/test_corrupted_key_mgr_metadata.py`: overwrite `KeyMgr` role metadata with an invalid delegation
-- `python plugins/quetz_content_trust/docs/test_corrupted_key_mgr_sigs.py`: overwrite `KeyMgr` role keys with an invalid one
+In another terminal, generate roles and upload a test package::
+
+   pixi run -e dev python plugins/quetz_content_trust/docs/test_script.py
+
+To submit invalid delegation metadata or signatures, run::
+
+   pixi run -e dev python plugins/quetz_content_trust/docs/test_corrupted_key_mgr_metadata.py
+   pixi run -e dev python plugins/quetz_content_trust/docs/test_corrupted_key_mgr_sigs.py

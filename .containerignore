@@ -1,0 +1,17 @@
+.git
+.pixi
+.venv
+.pytest_cache
+.mypy_cache
+.ruff_cache
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+build
+dist
+docs/build
+test_quetz
+channels
+*.sqlite
+*.log
+.env

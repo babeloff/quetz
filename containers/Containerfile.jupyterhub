@@ -1,0 +1,5 @@
+FROM docker.io/jupyterhub/jupyterhub
+
+# openssl passwd -1 test
+RUN useradd testuser --no-log-init -p "$(openssl passwd -1 test)"
+COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py

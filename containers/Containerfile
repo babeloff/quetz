@@ -1,0 +1,8 @@
+FROM ghcr.io/prefix-dev/pixi:0.84.2
+
+WORKDIR /code
+COPY . .
+RUN pixi install --locked -e container-dev
+ENV PATH="/code/.pixi/envs/container-dev/bin:${PATH}"
+RUN useradd quetz --no-log-init
+EXPOSE 8000

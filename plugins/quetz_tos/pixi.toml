@@ -1,0 +1,19 @@
+[package]
+name = "quetz-tos"
+version = "0.0.0"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "0.8.*" }
+
+[package.build.config]
+extra-input-globs = ["quetz_tos/templates/**/*", "quetz_tos/migrations/*.mako"]
+
+[package.host-dependencies]
+python = "3.11.*"
+setuptools = ">=41,<81"
+wheel = "*"
+uv = "*"
+
+[package.run-dependencies]
+python = ">=3.7"
+quetz-server = "*"

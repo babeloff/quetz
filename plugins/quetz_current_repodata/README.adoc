@@ -1,0 +1,21 @@
+= quetz_current_repodata plugin
+:idprefix:
+:idseparator: -
+
+This is a plugin to use with the link:++https://github.com/mamba-org/quetz++[quetz] package server.
+
+It generates `current_repodata.json` file specific to a particular channel (such as `conda-forge`) and a platform (such as `linux-64`).
+It is a trimmed version of `repodata.json` which contains the latest versions of each package.
+For more information, refer https://docs.conda.io/projects/conda-build/en/latest/concepts/generating-index.html#trimming-to-current-repodata
+
+== Installing
+
+To install use:
+
+[source,bash]
+----
+pixi run -e dev quetz plugin install plugins/quetz_current_repodata
+----
+
+Package matching uses Rattler.
+The subset keeps all builds of the latest version, backfills versions required by their dependencies, and retains a featureless alternative when current builds use legacy features. `.conda` packages take precedence over matching `.tar.bz2` packages and retain their legacy hash.

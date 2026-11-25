@@ -1,0 +1,26 @@
+= quetz_transmutation plugin
+:idprefix:
+:idseparator: -
+
+This is a plugin to use with the link:++https://github.com/mamba-org/quetz++[quetz] package server.
+
+== Installing
+
+To install use:
+
+[source,bash]
+----
+pixi run -e dev quetz plugin install plugins/quetz_transmutation
+----
+
+== Using
+
+Run the transumtation job on all packages (server wide) using the following RESTful request:
+
+[source,bash]
+----
+QUETZ_API_KEY=...
+curl -X POST localhost:8000/api/jobs \
+   -H "X-api-key: ${QUETZ_API_KEY}" \
+   -d '{"items_spec": "*", "manifest": "quetz-transmutation:transmutation"}'
+----

@@ -1,0 +1,23 @@
+name: test OCI image builds
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        containerfile: [Containerfile, containers/Containerfile, containers/Containerfile.jupyterhub, quetz_db_ext/Containerfile]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with Podman
+        env:
+          CONTAINERFILE: ${{ matrix.containerfile }}
+        run: |
+          context=.
+          case "$CONTAINERFILE" in
+            containers/Containerfile.jupyterhub) context=containers ;;
+            quetz_db_ext/Containerfile) context=quetz_db_ext ;;
+          esac
+          podman build -f "$CONTAINERFILE" -t localhost/quetz-test "$context"

@@ -1,0 +1,19 @@
+[package]
+name = "quetz-dictauthenticator"
+version = "0.0.0"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "0.8.*" }
+
+[package.build.config]
+extra-input-globs = ["quetz_dictauthenticator/templates/**/*", "quetz_dictauthenticator/migrations/*.mako"]
+
+[package.host-dependencies]
+python = "3.11.*"
+setuptools = ">=41,<81"
+wheel = "*"
+uv = "*"
+
+[package.run-dependencies]
+python = ">=3.7"
+quetz-server = "*"

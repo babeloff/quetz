@@ -1,0 +1,95 @@
+= Contributing
+:idprefix:
+:idseparator: -
+
+When contributing to this repository, it is always a good idea to first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+
+We welcome all kinds of contribution -- code or non-code -- and value them highly.
+We pledge to treat everyones contribution fairly and with respect and we are here to help awesome pull requests over the finish line.
+
+Please note we have a code of conduct, and follow it in all your interactions with the project.
+
+We follow the link:++https://numfocus.org/code-of-conduct++[NumFOCUS code of conduct].
+
+== Developing
+
+The Pixi `dev` environment includes the server, development tools, and optional storage and authentication dependencies:
+
+[source,bash]
+----
+pixi install --locked -e dev
+pixi run -e dev test
+pixi run -e dev lint
+pixi run -e docs docs
+pixi publish --path . --target-dir dist
+----
+
+The documentation task renders the Sphinx site to `docs/build/html` and the
+repository AsciiDoc documents to `docs/build/asciidoc`.
+Run `pixi run -e docs docs-asciidoc` to check only the AsciiDoc documents.
+The package description uses `README.adoc` as plain text because PyPI does not
+render AsciiDoc.
+
+The test task uses SQLite by default.
+Cloud storage and Redis integration tests require their corresponding services and credentials, as in CI.
+Pass pytest options after `test`, for example `pixi run -e dev test -k test_config`.
+
+Pixi installs the local server as an editable package through `pixi-build-python`, so source changes are available immediately when using the reload option:
+
+[source,bash]
+----
+pixi run -e dev prek install
+pixi run -e dev start
+----
+
+Keep `[package.run-dependencies]` in `pixi.toml` aligned with `install_requires` in `setup.cfg`.
+After changing Pixi dependencies, run `pixi lock` and commit `pixi.lock`.
+The backend is constrained to a minor release because `pixi-build` is a preview feature.
+The workspace pins FastAPI and HTTPX to versions compatible with this checkout.
+
+Bundled plugins have `pixi.toml` package manifests.
+Install one into the development environment with:
+
+[source,bash]
+----
+pixi run -e dev quetz plugin install plugins/quetz_runexports
+pixi run -e dev pytest plugins/quetz_runexports
+----
+
+This records a local package dependency in the active Pixi environment and updates the workspace manifest and lockfile.
+Use `--manifest-path` and `--environment` on `quetz plugin install` to target another workspace or environment explicitly.
+External Python plugins without a Pixi build manifest are added as editable PyPI dependencies through Pixi.
+For a `setup.py`-only plugin, pass `--name DISTRIBUTION_NAME`.
+
+The pre-commit-compatible hooks run with `prek`.
+They use `language: system` and invoke tools from the locked `lint` environment.
+The type checker uses the same isolated stub dependencies as the former hooks.
+They do not create separate installer-managed Python environments.
+Build backends use `uv`; Python distribution builds use `--no-isolation`.
+
+For local service containers, install Podman and run:
+
+[source,bash]
+----
+bash scripts/ci-services.sh start
+pixi run -e dev test
+bash scripts/ci-services.sh stop
+----
+
+The development image creates the `quetz` system account without a preset password.
+Configure its credentials explicitly if you want to test PAM authentication.
+
+The content-trust plugin retains `libmambapy` for its signing-role verification API and `conda-content-trust` for signing metadata.
+These libraries are confined to that optional plugin.
+Current-repodata generation uses Rattler for package matching and preserves latest builds, dependency backfills, and legacy feature alternatives.
+The solver plugin uses the Pixi executable and retains `/api/mamba/solve` for HTTP compatibility.
+
+== Pull requests
+
+Make sure to include the following with your pull requests:
+
+* description,
+* links to relevant issues,
+* any necessary code changes,
+* unit tests for these changes,
+* changes to relevant documentation sections

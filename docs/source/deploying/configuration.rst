@@ -117,7 +117,7 @@ Details about the session cookies that will be created in the browser.
 :secret: you can create a valid secret key using the command ``openssl rand -hex 32``
 
 ``mirroring`` section
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 You can fine tune the mirroring speed and requests made to the upstream server under ``[mirroring]``:
 
@@ -148,7 +148,7 @@ Quetz can store package in object cloud storage compatible with S3 interface. To
 
    To use the S3 backend you need to install the ``s3fs`` library::
       
-      mamba install -c conda-forge s3fs
+      pixi add s3fs
 
 
 .. code::
@@ -180,7 +180,7 @@ Quetz can store packages in Google Cloud Storage. To configure, use the followin
 
     To use the GCS backend you need to install the ``gcsfs`` library::
 
-        mamba install -c conda-forge gcsfs
+        pixi add gcsfs
 
 .. code::
 

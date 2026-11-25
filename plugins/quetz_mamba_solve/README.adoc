@@ -1,0 +1,22 @@
+= Quetz solver plugin
+:idprefix:
+:idseparator: -
+
+This plugin resolves package specifications with Pixi and returns an explicit specification containing package URLs and hashes.
+The existing `/api/mamba/solve` endpoint is preserved for clients.
+Solving writes a temporary Pixi workspace and lockfile without installing an environment.
+
+Install from the repository root:
+
+[source,bash]
+----
+pixi run -e dev quetz plugin install plugins/quetz_mamba_solve
+----
+
+To recreate an exported environment, save the response as `spec-file.txt` and import it into a new Pixi workspace:
+
+[source,bash]
+----
+pixi init --import spec-file.txt reproduced-environment
+pixi install --manifest-path reproduced-environment/pixi.toml
+----

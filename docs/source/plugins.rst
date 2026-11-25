@@ -17,7 +17,7 @@ Quetz repository provides a few "standard" plugins in the `plugins`_ sub-directo
 .. code::
 
    cd plugins
-   pip install quetz_runexports
+   pixi run -e dev quetz plugin install plugins/quetz_runexports
 
 ``quetz_runexports``
 ^^^^^^^^^^^^^^^^^^^^

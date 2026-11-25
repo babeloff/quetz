@@ -26,3 +26,7 @@ test_quetz
 
 # OS
 .DS_Store
+
+# Pixi environments and package artifacts
+.pixi/
+/*.conda

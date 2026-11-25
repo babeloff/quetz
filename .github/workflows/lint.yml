@@ -2,23 +2,14 @@ name: lint
 
 on: [push, pull_request]
 
-defaults:
-  run:
-    shell: bash -el {0}
-
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: mamba-org/setup-micromamba@v1
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environment.yml
-      - name: Add micromamba to GITHUB_PATH
-        run: echo "${HOME}/micromamba-bin" >> "$GITHUB_PATH"
-      - run: ln -s "${CONDA_PREFIX}" .venv # Necessary for pyright.
-      - uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --all-files --show-diff-on-failure
-        env:
-          PRE_COMMIT_USE_MICROMAMBA: 1
+          pixi-version: v0.84.2
+          environments: lint
+          locked: true
+      - run: pixi run --locked -e lint lint --show-diff-on-failure

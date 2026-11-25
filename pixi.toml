@@ -1,0 +1,163 @@
+[workspace]
+name = "quetz"
+description = "The mamba-org server for conda packages"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+preview = ["pixi-build"]
+requires-pixi = ">=0.84.2"
+
+[package]
+name = "quetz-server"
+version = "0.11.0"
+description = "The mamba-org server for conda packages"
+license = "BSD-3-Clause"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "0.8.*" }
+
+[package.build.config]
+extra-input-globs = [
+    "quetz/basic_frontend/**/*", "quetz/templates/**/*", "quetz/config.toml",
+    "quetz/migrations/*.mako", "quetz/tests/data/**/*",
+    "quetz_db_ext/*.c", "quetz_db_ext/*.h", "README.adoc", "LICENSE", "MANIFEST.in",
+]
+
+[package.host-dependencies]
+python = ">=3.7"
+setuptools = ">=41,<81"
+wheel = "*"
+uv = "*"
+
+# Keep these requirements aligned with setup.cfg [options].install_requires.
+[package.run-dependencies]
+python = ">=3.7"
+alembic = "*"
+aiofiles = "*"
+appdirs = "*"
+authlib = "<1.0.0"
+fastapi = "*"
+fsspec = "*"
+h2 = "*"
+httpx = ">=0.22.0"
+importlib_metadata = "*"
+itsdangerous = "*"
+jinja2 = "*"
+pluggy = "*"
+prometheus_client = "*"
+python-multipart = "*"
+pydantic = ">=2.0.0"
+pyyaml = "*"
+requests = "*"
+sqlalchemy = "*"
+sqlalchemy-utils = "*"
+tenacity = "*"
+toml = "*"
+typer = ">=0.9,<1.0"
+typing_extensions = "*"
+ujson = "*"
+uvicorn = "*"
+zstandard = "*"
+aioshutil = "*"
+
+[dependencies]
+python = "3.11.*"
+# This checkout uses the Starlette route and TestClient APIs from FastAPI 0.103.
+fastapi = "0.103.*"
+httpx = ">=0.22,<0.28"
+quetz-server = { path = "." }
+
+[tasks]
+start = "quetz run test_quetz --copy-conf ./dev_config.toml --dev --reload"
+
+[feature.dev.dependencies]
+black = "*"
+flake8 = "*"
+isort = "*"
+prek = "*"
+pytest = ">=7,<8"
+pytest-asyncio = ">=0.21,<0.22"
+pytest-mock = "*"
+pytest-cov = "*"
+pytest-timeout = "*"
+tbump = "*"
+psycopg2 = "*"
+s3fs = "*"
+gcsfs = ">=2022.03"
+adlfs = "*"
+pamela = "*"
+redis-py = "*"
+rq = "*"
+pyinstrument = "*"
+xattr = "*"
+
+[feature.dev.tasks]
+test = { cmd = "pytest -v quetz/tests", env = { QUETZ_IS_TEST = "1" } }
+lint = "prek run --all-files"
+
+[feature.lint.dependencies]
+python = "3.11.*"
+prek = "*"
+ruff = "0.4.1.*"
+mypy = "0.991.*"
+sqlalchemy-stubs = "*"
+types-click = "*"
+types-jinja2 = "*"
+types-mock = "*"
+types-orjson = "*"
+types-setuptools = "*"
+types-redis = "*"
+types-requests = "*"
+types-six = "*"
+types-toml = "*"
+types-ujson = "*"
+types-aiofiles = "*"
+
+[feature.lint.tasks]
+lint = "prek run --all-files"
+
+[feature.docs.dependencies]
+asciidoctor = ">=2,<3"
+sphinx = "*"
+sphinx-book-theme = ">=0.3"
+
+[feature.docs.tasks]
+docs = { depends-on = ["docs-sphinx", "docs-asciidoc"] }
+docs-sphinx = "sphinx-build -W -b html docs/source docs/build/html"
+docs-asciidoc = "asciidoctor --failure-level WARN -R . -D docs/build/asciidoc README.adoc CONTRIBUTING.adoc RELEASE.adoc CHANGELOG.adoc plugins/README.adoc plugins/*/README.adoc"
+
+[feature.release.dependencies]
+python-build = "*"
+twine = "*"
+setuptools = ">=41,<81"
+wheel = "*"
+
+[feature.release.tasks]
+build-python = "python -m build --no-isolation --outdir dist/python"
+check-python = { cmd = "twine check dist/python/*", depends-on = ["build-python"] }
+
+[feature.storage.dependencies]
+psycopg2 = "*"
+s3fs = "*"
+gcsfs = ">=2022.03"
+adlfs = "*"
+pamela = "*"
+
+[feature.container-dev.dependencies]
+postgresql = "*"
+
+[feature.containers.dependencies]
+podman-compose = "*"
+
+[feature.containers.tasks]
+containers-up = "podman-compose -f compose.yaml up --build"
+containers-down = "podman-compose -f compose.yaml down"
+
+[environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+release = { features = ["release"], solve-group = "default" }
+prod = { features = ["storage"], solve-group = "default" }
+container-dev = { features = ["dev", "container-dev"], solve-group = "default" }
+containers = { features = ["containers"], no-default-feature = true }
+lint = { features = ["lint"], no-default-feature = true }

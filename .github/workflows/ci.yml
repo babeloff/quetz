@@ -1,182 +1,70 @@
 name: CI
 
 on:
-  pull_request_target:
-    types: [assigned, opened, synchronize, reopened]
+  pull_request:
   push:
-    branches:
-      - main
-
-env:
-  GCS_PROJECT: qc-oss-mamba-org-quetz-dev
-  GCS_TOKEN: /home/runner/gcs/token.json
-  GCS_TOKEN_CONTENT: ${{ secrets.gcs_token_content }}
+    branches: [main]
 
 jobs:
   test_quetz:
-    # timeout for the whole job
-    timeout-minutes: 10
-    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        test_database: ["sqlite", "postgres"]
-        db_init: ["use-migrations", "create-tables"]
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: mysecretpassword
-          POSTGRES_USER: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432/tcp
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+        test_database: [sqlite, postgres]
+        db_init: [use-migrations, create-tables]
+    env:
+      TEST_DB_BACKEND: ${{ matrix.test_database }}
+      QUETZ_TEST_DBINIT: ${{ matrix.db_init }}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      GCS_TOKEN: /tmp/quetz-gcs-token.json
+      S3_ACCESS_KEY: ${{ secrets.s3_access_key }}
+      S3_SECRET_KEY: ${{ secrets.s3_secret_key }}
+      S3_ENDPOINT: https://s3.sbg.cloud.ovh.net/
+      S3_REGION: sbg
+      S3_BUCKET_NAME: quetz
+      QUETZ_IS_TEST: "1"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: write gcs token file
+          pixi-version: v0.84.2
+          environments: dev
+          locked: true
+      - name: Configure test credentials and database
+        env:
+          GCS_TOKEN_CONTENT: ${{ secrets.gcs_token_content }}
         run: |
-          mkdir $(dirname "${GCS_TOKEN}")
-          echo "${GCS_TOKEN_CONTENT}" > "${GCS_TOKEN}"
-      - name: install mamba
-        uses: mamba-org/setup-micromamba@v1
+          if [ -n "$GCS_TOKEN_CONTENT" ]; then
+            printf '%s' "$GCS_TOKEN_CONTENT" > "$GCS_TOKEN"
+            echo 'GCS_PROJECT=qc-oss-mamba-org-quetz-dev' >> "$GITHUB_ENV"
+          fi
+          if [ "$TEST_DB_BACKEND" = postgres ]; then
+            echo 'QUETZ_TEST_DATABASE=postgresql://postgres:mysecretpassword@localhost:5432/postgres' >> "$GITHUB_ENV"
+          fi
+      - name: Start services with Podman
+        run: bash scripts/ci-services.sh start
+      - name: Test server
+        run: pixi run --locked -e dev test --cov-config=pyproject.toml --cov=quetz --cov-report=xml --capture=no
+      - name: Test plugins
+        run: bash scripts/test-plugins.sh
+      - name: Stop services
+        if: always()
+        run: bash scripts/ci-services.sh stop
+      - uses: codecov/codecov-action@v4
         with:
-          environment-file: environment.yml
-      - name: test quetz
-        shell: bash -l -eo pipefail {0}
-        env:
-          TEST_DB_BACKEND: ${{ matrix.test_database }}
-          QUETZ_TEST_DBINIT: ${{ matrix.db_init }}
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-          S3_ACCESS_KEY: ${{ secrets.s3_access_key }}
-          S3_SECRET_KEY: ${{ secrets.s3_secret_key }}
-          S3_ENDPOINT: https://s3.sbg.cloud.ovh.net/
-          S3_REGION: sbg
-          S3_BUCKET_NAME: quetz
-        run: |
-          # install dev dependencies
-          pip install -e .[all,dev]
-          pip install redis rq
-          pip install pytest-github-actions-annotate-failures
-      - name: Testing server
-        shell: bash -l -eo pipefail {0}
-        # timeout for the step
-        timeout-minutes: 5
-        env:
-          TEST_DB_BACKEND: ${{ matrix.test_database }}
-          QUETZ_TEST_DBINIT: ${{ matrix.db_init }}
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-          S3_ACCESS_KEY: ${{ secrets.s3_access_key }}
-          S3_SECRET_KEY: ${{ secrets.s3_secret_key }}
-          S3_ENDPOINT: https://s3.sbg.cloud.ovh.net/
-          S3_REGION: sbg
-          S3_BUCKET_NAME: quetz
-        run: |
-          if [ "$TEST_DB_BACKEND" == "postgres" ]; then
-            export QUETZ_TEST_DATABASE="postgresql://postgres:mysecretpassword@${POSTGRES_HOST}:${POSTGRES_PORT}/postgres"
-            echo "Running with postgres"
-          fi
-
-          if [ "$QUETZ_TEST_DBINIT" == "use-migrations" ]; then
-            echo "Using migrations"
-          fi
-
-          export QUETZ_IS_TEST=1
-
-          pytest -v ./quetz/tests/ --cov-config=pyproject.toml --cov=. --cov-report=xml  --capture=no
-
-      - name: Test the plugins
-        shell: bash -l -eo pipefail {0}
-        env:
-          TEST_DB_BACKEND: ${{ matrix.test_database }}
-          QUETZ_TEST_DBINIT: ${{ matrix.db_init }}
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-          S3_ACCESS_KEY: ${{ secrets.s3_access_key }}
-          S3_SECRET_KEY: ${{ secrets.s3_secret_key }}
-          S3_ENDPOINT: https://s3.sbg.cloud.ovh.net/
-          S3_REGION: sbg
-          S3_BUCKET_NAME: quetz
-        run: |
-          if [ "$TEST_DB_BACKEND" == "postgres" ]; then
-            export QUETZ_TEST_DATABASE="postgresql://postgres:mysecretpassword@${POSTGRES_HOST}:${POSTGRES_PORT}/postgres"
-            echo "Running with postgres"
-          fi
-
-          # add micromamba to path
-          export PATH=$(dirname $MAMBA_EXE):$PATH
-          echo "adding micromamba to path: $MAMBA_EXE"
-
-          pip install --no-deps git+https://git@github.com/regro/libcflib@master
-
-          for f in ./plugins/quetz_*
-          do
-            echo "::group::Testing plugin ${f}"
-            quetz plugin install $f
-
-            # We want to test all the plugins, regardless of whether one fails
-            set +e
-            pytest -v $f
-            pytest_exit_code=$?
-            set -e
-            echo "::endgroup::"
-            if [ $pytest_exit_code -ne 0 ]; then
-              echo "::error::Tests for plugin $f failed!"
-              tests_failed="true"
-            fi
-          done
-
-          if [ "$tests_failed" == "true" ]; then
-            echo "::error::Some plugin tests failed!"
-            exit 1
-          fi
-
-      - uses: codecov/codecov-action@v1
-        with:
-          verbose: true
-          file: ./coverage.xml
+          files: coverage.xml
 
   test_release:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          python-version: "3.10"
-
-      - name: install missing dependency
-        run: pip install ipython_genutils
-
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@eee8675bd61ec38bcfbfedd504d8473292ba649e
-
-      - name: Check Release
-        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          pixi-version: v0.84.2
+          environments: release
+          locked: true
+      - run: pixi run --locked -e release check-python
+      - run: pixi publish --path . --target-dir dist/conda

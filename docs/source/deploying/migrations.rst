@@ -55,7 +55,7 @@ This should create a new migration script in `PLUGIN_DIR/migrations/versions`.
 
 .. note::
 
-   If you want to add the migration script to you working directory, you need to install the plugin using the development mode: ``pip install -e PATH_TO_PLUGIN``
+   If you want to add the migration script to you working directory, you need to install the plugin using the development mode: ``pixi add --pypi --editable PLUGIN_NAME --path PATH_TO_PLUGIN``
 
 As always the ``quetz init-db`` will upgrade automatically your database to reflect the data models defined in the plugin.
 

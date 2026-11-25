@@ -1,7 +1,8 @@
-include *.md
+include *.adoc
 include alembic.ini
 include dev_config.toml
-include environment.yml
+include pixi.toml
+include pixi.lock
 include init_db.py
 include .flake8
 include .pre-commit-config.yaml
@@ -24,9 +25,11 @@ exclude set_env_dev.sh
 exclude test-cli-client.sh
 exclude utils/repodata_compare.py
 
-include Dockerfile
-include docker-compose.yml
-recursive-include docker *
+include Containerfile
+include compose.yaml
+include .containerignore
+recursive-include containers *
+recursive-include scripts *.sh
 
 recursive-include docs/source *.*
 recursive-include docs/assets *.*

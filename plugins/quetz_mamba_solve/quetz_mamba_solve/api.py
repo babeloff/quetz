@@ -1,10 +1,8 @@
-import json
-
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
 from .rest_models import SolveTask
-from .solver import MambaSolver
+from .solver import PixiSolver
 from .utils import timed_lru_cache
 
 router = APIRouter()
@@ -12,7 +10,7 @@ router = APIRouter()
 
 @timed_lru_cache(hours=3, maxsize=128)
 def get_solver(channels, subdir):
-    s = MambaSolver(list(channels), subdir)
+    s = PixiSolver(list(channels), subdir)
     return s
 
 
@@ -23,18 +21,9 @@ def mamba_solve(solve_task: SolveTask):
     spec = solve_task.spec
 
     s = get_solver(channels, subdir)
-    _, link, _ = s.solve(spec).to_conda()
-
-    data = []
-    data_bytes = f"# platform: {subdir}\n\n"
-    data_bytes += "@EXPLICIT\n\n"
-    for c, pkg, jsn_s in link:
-        jsn_content = json.loads(jsn_s)
-        url = jsn_content["url"]
-        md5 = jsn_content["md5"]
-        each_pkg = f"{url}#{md5}"
-        data.append(each_pkg)
-
-    data_bytes += "\n".join(data)
-
-    return data_bytes
+    try:
+        return s.solve(spec)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc

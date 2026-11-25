@@ -39,11 +39,12 @@ You may copy the data directly to the Swagger web interface under the heading PO
 
 where the value of ``QUETZ_API_KEY`` variable should be the API key that was printed when you created the quetz deployment or retrieved using the API as described in the section :ref:`generate-an-api-key`.
 
-Then you can install packages from the channel the standard way using ``conda`` or ``mamba``:
+Then create a Pixi workspace using the proxy channel:
 
 .. code:: bash
 
-   mamba install --strict-channel-priority -c ${QUETZ_HOST}/channels/proxy-channel nrnpython
+   pixi init --channel ${QUETZ_HOST}/get/proxy-channel --channel conda-forge /tmp/quetz-proxy-demo
+   pixi add --manifest-path /tmp/quetz-proxy-demo/pixi.toml nrnpython
 
 Mirror channels
 ^^^^^^^^^^^^^^^

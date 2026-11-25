@@ -1,0 +1,41 @@
+= Making a release of Quetz
+:idprefix:
+:idseparator: -
+
+Install link:++https://pixi.sh++[Pixi] and work from a clean checkout.
+The `release` environment supplies the build and upload tools from `pixi.lock`.
+
+== Prepare artifacts
+
+Update the version with `pixi run -e dev tbump NEW_VERSION`.
+Run `pixi lock` afterward so local package metadata in the lockfile matches.
+Run the checks and build the Python and conda artifacts:
+
+[source,bash]
+----
+pixi run --locked -e dev test
+pixi run --locked -e docs docs
+pixi run --locked -e release check-python
+pixi publish --path . --target-dir dist/conda
+----
+
+`check-python` builds the source distribution and wheel in `dist/python/` using `python -m build --no-isolation`, then checks their metadata with Twine.
+All build requirements come from the locked environment.
+
+== Publish
+
+After reviewing the artifacts, upload the Python distributions:
+
+[source,bash]
+----
+pixi run --locked -e release twine upload dist/python/*
+----
+
+Tag and push the release according to the repository's release policy.
+The OCI publication workflow builds and pushes the tagged image using Podman.
+Its registry credentials use the existing `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` GitHub secrets.
+
+== Update conda-forge
+
+The conda-forge version bot should open a feedstock update after the PyPI release is available.
+Review and validate that recipe separately.

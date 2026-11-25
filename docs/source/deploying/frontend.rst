@@ -6,7 +6,7 @@ To build it, one needs to install:
 
 .. code:: bash
 
-   mamba install 'nodejs>=14'
+   pixi add 'nodejs>=14'
    cd quetz_frontend
    npm install
    npm run build

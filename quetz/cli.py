@@ -1,5 +1,6 @@
 # Copyright 2020 QuantStack
 # Distributed under the terms of the Modified BSD License.
+import configparser
 import contextlib
 import logging
 import os
@@ -7,12 +8,12 @@ import random
 import shutil
 import subprocess
 import uuid
-from distutils.spawn import find_executable
 from enum import Enum
 from multiprocessing import get_context
 from pathlib import Path
 from typing import NoReturn, Optional, Union
 
+import toml
 import typer
 import uvicorn
 from alembic import command
@@ -694,56 +695,71 @@ def delete(
 def plugin(
     cmd: str,
     path: Annotated[str, typer.Argument(help="Path to the plugin folder")],
+    manifest_path: Annotated[
+        Optional[Path], typer.Option(help="Target Pixi workspace manifest")
+    ] = None,
+    environment: Annotated[
+        Optional[str], typer.Option(help="Target Pixi environment")
+    ] = None,
+    package_name: Annotated[
+        Optional[str],
+        typer.Option(
+            "--name", help="Python distribution name for setup.py-only plugins"
+        ),
+    ] = None,
 ) -> None:
-    if cmd == "install":
-        abs_path = Path(path).absolute()
-        if not (abs_path / "setup.py").exists():
-            raise ValueError(f"Could not find any setup.py file in {abs_path}/.")
-        requirements = abs_path / "conda-requirements.txt"
+    """Install a plugin into a Pixi workspace and record its dependencies."""
+    if cmd != "install":
+        raise typer.BadParameter(f"Unknown plugin command '{cmd}'.")
 
-        conda_exes = ["mamba", "conda", "micromamba"]
-        conda_exe_path = None
-        if requirements.exists():
-            for conda_exe in conda_exes:
-                conda_exe_path = find_executable(conda_exe)
-                if conda_exe_path:
-                    break
+    abs_path = Path(path).resolve()
+    manifests = ("pixi.toml", "pyproject.toml", "setup.py")
+    if not any((abs_path / name).is_file() for name in manifests):
+        raise typer.BadParameter(f"No Python or Pixi package found in {abs_path}.")
 
-            if conda_exe_path is None:
-                print(
-                    f"Could not find any of {', '.join(conda_exes)}. "
-                    f"One is needed to install the plugin requirements."
-                )
-                exit(1)
+    pixi = shutil.which("pixi")
+    if pixi is None:
+        typer.echo(
+            "Pixi is required to install plugins. Install it from https://pixi.sh.",
+            err=True,
+        )
+        raise typer.Exit(1)
 
-            print(f"Installing requirements.txt for {os.path.split(abs_path)[1]}")
-            subprocess.call(
-                [
-                    conda_exe_path,
-                    "install",
-                    "--channel",
-                    "conda-forge",
-                    "--file",
-                    requirements,
-                ]
-            )
+    command = [pixi, "add"]
+    manifest = manifest_path or os.environ.get("PIXI_PROJECT_MANIFEST")
+    if manifest:
+        command.extend(["--manifest-path", str(manifest)])
+    target_environment = environment or os.environ.get("PIXI_ENVIRONMENT_NAME")
+    if target_environment:
+        command.extend(["--environment", target_environment])
 
-        pip_exe_path = find_executable("pip")
-        if pip_exe_path is None:
-            # Try to install pip if it's missing
-            if conda_exe_path is not None:
-                print("pip is missing, installing...")
-                subprocess.call(
-                    [conda_exe_path, "install", "--channel", "conda-forge", "pip"]
-                )
-                pip_exe_path = find_executable("pip")
-
-        if pip_exe_path is None:
-            print("Could not find pip to install the plugin.")
-            exit(1)
-        subprocess.call([pip_exe_path, "install", abs_path])
+    package_manifest = abs_path / "pixi.toml"
+    if package_manifest.is_file():
+        package_name = toml.load(package_manifest).get("package", {}).get("name")
+        if not package_name:
+            raise typer.BadParameter(f"Missing [package].name in {package_manifest}.")
+        command.extend(["--path", str(abs_path), package_name])
     else:
-        print(f"Command '{cmd}' not yet understood.")
+        pyproject = abs_path / "pyproject.toml"
+        if not package_name and pyproject.is_file():
+            package_name = toml.load(pyproject).get("project", {}).get("name")
+        setup_cfg = abs_path / "setup.cfg"
+        if not package_name and setup_cfg.is_file():
+            metadata = configparser.ConfigParser()
+            metadata.read(setup_cfg)
+            package_name = metadata.get("metadata", "name", fallback=None)
+        if not package_name:
+            raise typer.BadParameter(
+                "Use --name to specify this plugin's Python distribution name."
+            )
+        command.extend(
+            ["--pypi", "--editable", f"{package_name} @ {abs_path.as_uri()}"]
+        )
+
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as exc:
+        raise typer.Exit(exc.returncode) from exc
 
 
 def start_supervisor_daemon(path: Path, num_procs=None):

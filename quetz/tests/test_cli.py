@@ -670,3 +670,57 @@ if False:
         p.join()
 
         assert p.exitcode == 0
+
+
+@pytest.mark.parametrize("manifest_name", ["pixi.toml", "pyproject.toml"])
+def test_plugin_install_uses_pixi(tmp_path, mocker, monkeypatch, manifest_name):
+    plugin_dir = tmp_path / "plugin"
+    plugin_dir.mkdir()
+    (plugin_dir / manifest_name).write_text(
+        '[package]\nname = "example-plugin"\n'
+        if manifest_name == "pixi.toml"
+        else '[project]\nname = "example-plugin"\n'
+    )
+    manifest = tmp_path / "workspace" / "pixi.toml"
+    monkeypatch.setenv("PIXI_PROJECT_MANIFEST", str(manifest))
+    monkeypatch.setenv("PIXI_ENVIRONMENT_NAME", "dev")
+    mocker.patch("shutil.which", return_value="/bin/pixi")
+    run = mocker.patch("subprocess.run")
+
+    result = runner.invoke(cli.app, ["plugin", "install", str(plugin_dir)])
+
+    assert result.exit_code == 0, result.output
+    command = run.call_args.args[0]
+    assert command[:2] == ["/bin/pixi", "add"]
+    assert command[command.index("--manifest-path") + 1] == str(manifest)
+    assert command[command.index("--environment") + 1] == "dev"
+    if manifest_name == "pixi.toml":
+        assert command[-3:] == ["--path", str(plugin_dir), "example-plugin"]
+    else:
+        assert command[-3:] == [
+            "--pypi",
+            "--editable",
+            f"example-plugin @ {plugin_dir.as_uri()}",
+        ]
+    assert run.call_args.kwargs["check"] is True
+
+
+def test_plugin_install_reports_pixi_failure(tmp_path, mocker, monkeypatch):
+    import subprocess
+
+    (tmp_path / "setup.py").write_text("")
+    monkeypatch.setenv("PIXI_PROJECT_MANIFEST", str(tmp_path / "pixi.toml"))
+    mocker.patch("shutil.which", return_value="/bin/pixi")
+    mocker.patch("subprocess.run", side_effect=subprocess.CalledProcessError(7, "pixi"))
+    result = runner.invoke(
+        cli.app, ["plugin", "install", str(tmp_path), "--name", "example-plugin"]
+    )
+    assert result.exit_code == 7
+
+
+def test_plugin_install_requires_pixi(tmp_path, mocker):
+    (tmp_path / "setup.py").write_text("")
+    mocker.patch("shutil.which", return_value=None)
+    result = runner.invoke(cli.app, ["plugin", "install", str(tmp_path)])
+    assert result.exit_code != 0
+    assert "Pixi" in result.output
